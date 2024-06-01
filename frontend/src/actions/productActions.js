@@ -1,4 +1,3 @@
-
 // actions/userActions.js
 import axios from 'axios';
 
@@ -9,38 +8,44 @@ export const FETCH_PRODUCTS_FAILURE = 'FETCH_PRODUCTS_FAILURE';
 
 // Action creators
 export const fetchProductsRequest = () => {
-  return {
-    type: FETCH_PRODUCTS_REQUEST,
-  };
+    return {
+        type: FETCH_PRODUCTS_REQUEST,
+    };
 };
 
 export const fetchProductsSuccess = (products) => {
-  return {
-    type: FETCH_PRODUCTS_SUCCESS,
-    payload: products,
-  };
+    return {
+        type: FETCH_PRODUCTS_SUCCESS,
+        payload: products,
+    };
 };
 
 export const fetchProductsFailure = (error) => {
-  return {
-    type: FETCH_PRODUCTS_FAILURE,
-    payload: error,
-  };
+    return {
+        type: FETCH_PRODUCTS_FAILURE,
+        payload: error,
+    };
 };
 
 // Async action creator using thunk
 export const fetchProducts = () => {
-  return (dispatch) => {
-    dispatch(fetchProductsRequest());
-    axios.get('http://localhost:4000/api/data/product')
-      .then(response => {
-        const products = response.data;
-        dispatch(fetchProductsSuccess(products));
-      })
-      .catch(error => {
-        const errorMsg = error.message;
-        dispatch(fetchProductsFailure(errorMsg));
-      });
-  };
-  
+    return (dispatch) => {
+        dispatch(fetchProductsRequest());
+        axios
+            .get('http://localhost:4000/api/data/product')
+            .then((response) => {
+                const products = response.data;
+                dispatch(fetchProductsSuccess(products));
+                if (Array.isArray(products)) {
+                    // Kiểm tra dữ liệu trả về có phải là mảng không
+                    dispatch(fetchProductsSuccess(products));
+                } else {
+                    dispatch(fetchProductsFailure('Invalid data format')); // Xử lý dữ liệu không hợp lệ
+                }
+            })
+            .catch((error) => {
+                const errorMsg = error.message;
+                dispatch(fetchProductsFailure(errorMsg));
+            });
+    };
 };

@@ -3,33 +3,39 @@ import styles from './Home.module.scss';
 import Slide from './Slide';
 import Sell from './Sell';
 import Blog from './Blog';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchBlogs } from '@/actions/blogActions';
-
+import { fetchProducts } from '@/actions/productActions';
 const cx = classNames.bind(styles);
 
 function Home() {
-    // const [products, setProducts] = useState([]);
-    // const [productsLoaded, setProductsLoaded] = useState(false);
-
     const dispatch = useDispatch();
-    const blogs = useSelector(state => state.blog.blogs);
-    const loading = useSelector(state => state.blog.loading);
-    const error = useSelector(state => state.blog.error);
+    const blogs = useSelector((state) => state.blog.blogs);
+    const loadingBlog = useSelector((state) => state.blog.loading);
+    const errorBlog = useSelector((state) => state.blog.error);
+
+    const products = useSelector((state) => state.product.products);
+    const loadingProduct = useSelector((state) => state.product.loading);
+    const errorProduct = useSelector((state) => state.product.error);
 
     useEffect(() => {
         dispatch(fetchBlogs());
+        dispatch(fetchProducts());
     }, [dispatch]);
 
-    console.log(loading);
-    
+    console.log(products);
+
     return (
         <div className={cx('wrapper')}>
             <Slide />
-            {/* {productsLoaded && <Sell props={products} title="Đang khuyến mãi" sale={true} type={false} />}
-            {productsLoaded && <Sell props={products} title="Hàng mới về " type={true} sale={false} />} */}
-            {!loading && !error && blogs.length > 0&& <Blog props={blogs} />} 
+            {!loadingProduct && !errorProduct && products.length > 0 && (
+                <Sell props={products} title="Đang khuyến mãi" sale={true} type={false} />
+            )}
+            {!loadingProduct && !errorProduct && products.length > 0 && (
+                <Sell props={products} title="Hàng mới về " type={true} sale={false} />
+            )}
+            {!loadingBlog && !errorBlog && blogs.length > 0 && <Blog props={blogs} />}
         </div>
     );
 }
