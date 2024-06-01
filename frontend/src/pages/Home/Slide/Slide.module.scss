@@ -1,0 +1,44 @@
+.wrapper {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 430px;
+    overflow: hidden;
+}
+
+.slide {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.5s ease-in-out;
+    animation: slideAnimation 0.5s ease-in-out;
+}
+
+.slide-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    user-select: none;
+}
+
+.slide-arrow-left {
+    position: absolute;
+    top: 50%;
+    left: 2%;
+    padding: 8px;
+    &:hover {
+        color: var(--default-bold);
+    }
+}
+
+.slide-arrow-right {
+    position: absolute;
+    top: 50%;
+    right: 2%;
+    padding: 8px;
+    &:hover {
+        color: var(--default-bold);
+    }
+}

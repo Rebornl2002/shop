@@ -1,0 +1,42 @@
+.wrapper-title {
+    cursor: default;
+    user-select: none;
+    padding: 16px 0 0px 20px;
+}
+
+.title {
+    width: 16%;
+    background-color: #fffbf3;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+}
+
+.container-title {
+    border: 1px dashed #fcc8c1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 94%;
+    height: 80%;
+    border-radius: 4px;
+}
+
+.content-title {
+    font-family: 'PT Serif', serif;
+    font-style: italic;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+.change-outline {
+    border: 1px dashed var(--white);
+}
+
+.change-background {
+    background-color: var(--default);
+    color: var(--white);
+}

@@ -1,0 +1,75 @@
+.wrapper {
+    background-color: var(--default-background-color);
+    margin: 16px 0px;
+}
+
+.blog-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.blog-img {
+    width: 30%;
+    border-radius: 4px;
+    margin: 16px 20px;
+    height: 220px;
+}
+
+.blog-description {
+}
+
+.blog-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.blog-summary {
+    font-size: 1.3rem;
+    color: #7a7a7a;
+    padding: 8px 30px 8px 0;
+    text-align: justify;
+}
+
+.blog-date {
+    font-size: 1.3rem;
+    color: #7a7a7a;
+    font-style: italic;
+}
+
+.blog-btn {
+    width: 14%;
+    background-color: #ff9a8d;
+    text-align: center;
+    margin-top: 8px;
+    border-radius: 4px;
+    color: var(--white);
+    font-size: 1.3rem;
+    padding: 6px;
+    transition: all 0.2s ease-in;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #ff6753;
+    }
+}
+
+.blog-btn-icon {
+    padding-left: 2px;
+}
+
+.bookmark {
+    text-align: end;
+    font-size: 1.2rem;
+    padding: 20px;
+    color: #ccc;
+}
+
+.bookmark-icon {
+    padding: 0px 4px;
+    cursor: pointer;
+}
+
+.active {
+    color: #7a7a7a;
+}

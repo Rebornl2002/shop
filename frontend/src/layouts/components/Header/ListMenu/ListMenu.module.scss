@@ -1,0 +1,22 @@
+.wrapper {
+    flex-grow: 1;
+}
+
+.list {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.item {
+    font-size: 2.4rem;
+    font-weight: 600;
+    font-family: 'Dancing Script', cursive;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+        color: var(--default);
+    }
+}

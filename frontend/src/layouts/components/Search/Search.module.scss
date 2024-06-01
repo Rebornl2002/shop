@@ -1,0 +1,22 @@
+.wrapper {
+    flex-grow: 0;
+    height: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--default);
+    border-radius: 4px;
+    padding-right: 10px;
+}
+
+.input-search {
+    height: 100%;
+    padding: 0px 8px;
+    border-radius: 4px;
+    caret-color: var(--default-bold);
+}
+
+.search-icon {
+    color: var(--default-bold);
+    cursor: pointer;
+}
