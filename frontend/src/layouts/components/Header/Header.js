@@ -1,97 +1,71 @@
 import classNames from 'classnames/bind';
-import Tippy from '@tippyjs/react';
-import 'tippy.js/dist/tippy.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faEllipsisVertical,
-    faEarthAsia,
-    faKeyboard,
-    faCircleQuestion,
-    faUser,
-    faCoins,
-    faGear,
-    faSignOut,
     faShoppingCart,
+    faRightToBracket,
+    faUserPlus,
+    faEllipsisVertical,
+    faUser,
+    faSignOut,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import config from '@/config';
+import Login from './Login';
+import Register from './Register';
 
-// import Search from '@/layouts/components/Search2/Search';
 import Search from '@/layouts/components/Search';
 import ListMenu from './ListMenu';
-import Button from '@/components/Button/Button';
 import styles from './Header.module.scss';
 import images from '@/assets/images';
-import Menu from '@/components/Popper/Menu/Menu';
-import Image from '@/components/Image/Image';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '@/actions/userActions';
+import Menu from '@/components/Popper/Menu';
 
 const cx = classNames.bind(styles);
 
-const MENU_ITEMS = [
-    {
-        icon: <FontAwesomeIcon icon={faEarthAsia} />,
-        title: 'English',
-        children: {
-            title: 'Language',
-            data: [
-                {
-                    type: 'language',
-                    code: 'en',
-                    title: 'English',
-                },
-                {
-                    type: 'language',
-                    code: 'vi',
-                    title: 'Tiếng Việt',
-                },
-            ],
-        },
-    },
-    {
-        icon: <FontAwesomeIcon icon={faCircleQuestion} />,
-        title: 'Feedback and help',
-        to: '/feedback',
-    },
-    {
-        icon: <FontAwesomeIcon icon={faKeyboard} />,
-        title: 'Keyboard shortcuts',
-    },
-];
-
 function Header() {
-    const currentUser = true;
+    const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+    const [isLoginForm, setIsLoginForm] = useState(true);
+    const [authentication, setAuthentication] = useState(false);
 
-    //Handle logic
+    const dispatch = useDispatch();
 
-    const handleMenuChange = (menuItem) => {
-        switch (menuItem.type) {
-            case 'languege':
-                break;
-            default:
-        }
+    const handleLogout = () => {
+        dispatch(logout());
+    };
+
+    const handleChangeLoginForm = () => {
+        setIsLoginForm(true);
+    };
+
+    const handleChangeRegisterForm = () => {
+        setIsLoginForm(false);
+    };
+
+    const handleOpenLoginForm = () => {
+        setAuthentication(true);
+        setIsLoginForm(true);
+    };
+
+    const handleOpenRegisterForm = () => {
+        setAuthentication(true);
+        setIsLoginForm(false);
+    };
+
+    const handleCloseAuthenticationForm = () => {
+        setAuthentication(false);
     };
 
     const userMenu = [
         {
             icon: <FontAwesomeIcon icon={faUser} />,
             title: 'View profile',
-            to: '/@view/profile',
         },
-        {
-            icon: <FontAwesomeIcon icon={faCoins} />,
-            title: 'Get coins',
-            to: '/coin',
-        },
-        {
-            icon: <FontAwesomeIcon icon={faGear} />,
-            title: 'Settings',
-            to: '/setting',
-        },
-        ...MENU_ITEMS,
         {
             icon: <FontAwesomeIcon icon={faSignOut} />,
             title: 'Log out',
-            to: '/logout',
+            onClick: handleLogout,
             separate: true,
         },
     ];
@@ -100,36 +74,40 @@ function Header() {
         <header className={cx('wrapper')}>
             <div className={cx('inner')}>
                 <Link to={config.routes.home} className={cx('logo')}>
-                    <img className={cx('logo-img')} src={images.logo2} alt="" />
+                    <img className={cx('logo-img')} src={images.logo2} alt="logo" />
                 </Link>
                 <ListMenu />
                 <Search />
-                <FontAwesomeIcon icon={faShoppingCart} className={cx('shopping-cart-icon')}/>
-                <div className={cx('actions')}>
-                    {currentUser ? (
-                        <>
-                            <Tippy delay={(0, 200)} content="Upload video" placement="bottom"></Tippy>
-                        </>
-                    ) : (
-                        <>
-                            <Button primary>Log in</Button>
-                        </>
-                    )}
-                    <Menu items={currentUser ? userMenu : MENU_ITEMS} onChange={handleMenuChange}>
-                        {currentUser ? (
-                            <Image
-                                src="https//hinhgaixinh.com/wp-content/uploads/2022/08/anh-gai-xinh-mac-bikini-trung-quoc-cuon-hut-nguoi-xem.jpg"
-                                className={cx('user-avatar')}
-                                alt="Nguyen Van A"
-                                fallback="https://hinhgaixinh.com/wp-content/uploads/2022/08/hinh-anh-gai-xinh-khoe-hang-tuyet-dep.jpg"
-                            />
-                        ) : (
+                {isLoggedIn && (
+                    <div className={cx('logged-in-icon-container')}>
+                        <FontAwesomeIcon icon={faShoppingCart} className={cx('shopping-cart-icon')} />
+                        <Menu items={userMenu}>
                             <button className={cx('more-btn')}>
                                 <FontAwesomeIcon icon={faEllipsisVertical} />
                             </button>
-                        )}
-                    </Menu>
+                        </Menu>
+                    </div>
+                )}
+                <div className={cx('actions')}>
+                    {!isLoggedIn && (
+                        <div className={cx('authentication-buttons-container')}>
+                            <div className={cx('login-btn')} onClick={handleOpenLoginForm}>
+                                <FontAwesomeIcon icon={faRightToBracket} className={cx('authentication-icon')} />
+                                Đăng nhập
+                            </div>
+                            <div className={cx('register-btn')} onClick={handleOpenRegisterForm}>
+                                <FontAwesomeIcon icon={faUserPlus} className={cx('authentication-icon')} />
+                                Đăng kí
+                            </div>
+                        </div>
+                    )}
                 </div>
+                {authentication && isLoginForm && (
+                    <Login onChange={handleChangeRegisterForm} onClose={handleCloseAuthenticationForm} />
+                )}
+                {authentication && !isLoginForm && (
+                    <Register onChange={handleChangeLoginForm} onClose={handleCloseAuthenticationForm} />
+                )}
             </div>
         </header>
     );

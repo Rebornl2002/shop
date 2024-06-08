@@ -1,11 +1,13 @@
-// Trong dataRouter.js
 const express = require('express');
 const router = express.Router();
-const { getAllBlogs, createData,deleteData, getAllProduct } = require('../queries');
+const blogController = require('../controller/blogController');
+const productController = require('../controller/productController');
+const userController = require('../controller/userController');
 
-router.get('/blog', getAllBlogs);
-router.get('/product',getAllProduct);
-router.delete('/:id', deleteData); // Assuming you pass the id as a parameter
-router.post('/', createData);
+router.get('/blogs', blogController.getAllBlogs);
+router.get('/products', productController.getAllProducts);
+router.post('/users/login', userController.checkUserLogin);
+router.post('/users', userController.createUser);
+router.delete('/blogs/:id', blogController.deleteBlog);
 
 module.exports = router;

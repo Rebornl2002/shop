@@ -1,0 +1,128 @@
+.wrapper {
+    position: relative;
+}
+
+.choose-wrapper {
+    position: fixed;
+    z-index: 50;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.5s ease-in-out;
+    opacity: 0;
+    transition: all 0.5s ease-in-out;
+}
+
+.choose-wrapper-active {
+    opacity: 1;
+}
+
+.choose-container {
+    width: calc(var(--default-layout-width) - 2 * var(--default-layout-horizontal-spacer));
+    background-color: var(--white);
+    height: 50%;
+    display: flex;
+    justify-content: space-between;
+    user-select: none;
+}
+
+.img-product {
+    height: 100%;
+    width: 40%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.info-product {
+    position: relative;
+    flex: 1;
+    padding: 16px 30px;
+}
+
+.name-product {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.price-product {
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.quantity {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.quantity-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .quantity-value {
+        width: 30px; // Chiều rộng cố định
+        text-align: center;
+    }
+}
+
+.quantity-icon {
+    padding: 0px 20px;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--default-bold);
+    }
+}
+
+.quantity-icon-ban {
+    color: #ccc;
+
+    &:hover {
+        color: #ccc;
+
+        cursor: default;
+    }
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 100%;
+}
+
+.product-btn {
+    background-color: var(--default-bold);
+    padding: 8px;
+    border-radius: 4px;
+    color: var(--white);
+    cursor: pointer;
+    transition: all 0.5s linear;
+}
+
+.product-btn-ban {
+    background-color: #ccc;
+    cursor: default;
+}
+
+.exit-btn {
+    position: absolute;
+    top: 0;
+    right: 0px;
+    padding: 6px 12px;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--default-bold);
+    }
+}

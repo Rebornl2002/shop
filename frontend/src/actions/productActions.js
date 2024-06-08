@@ -5,6 +5,7 @@ import axios from 'axios';
 export const FETCH_PRODUCTS_REQUEST = 'FETCH_PRODUCTS_REQUEST';
 export const FETCH_PRODUCTS_SUCCESS = 'FETCH_PRODUCTS_SUCCESS';
 export const FETCH_PRODUCTS_FAILURE = 'FETCH_PRODUCTS_FAILURE';
+export const SELECT_PRODUCT = 'SELECT_PRODUCT';
 
 // Action creators
 export const fetchProductsRequest = () => {
@@ -27,12 +28,19 @@ export const fetchProductsFailure = (error) => {
     };
 };
 
+export const selectProduct = (product) => {
+    return {
+        type: SELECT_PRODUCT,
+        payload: product,
+    };
+};
+
 // Async action creator using thunk
 export const fetchProducts = () => {
     return (dispatch) => {
         dispatch(fetchProductsRequest());
         axios
-            .get('http://localhost:4000/api/data/product')
+            .get('http://localhost:4000/api/data/products')
             .then((response) => {
                 const products = response.data;
                 dispatch(fetchProductsSuccess(products));

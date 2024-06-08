@@ -5,6 +5,8 @@ import { faBasketShopping } from '@fortawesome/free-solid-svg-icons';
 import Title from '../Title';
 import sale1 from '@/assets/images/sale1.jpg';
 import sale2 from '@/assets/images/sale2.jpg';
+import { useDispatch } from 'react-redux';
+import { selectProduct } from '@/actions/productActions';
 
 const cx = classNames.bind(styles);
 
@@ -19,6 +21,8 @@ function Discount({ props, title, sale, type }) {
     const handGetReducePrice = (price, percentDiscount) => {
         return price - (price * percentDiscount) / 100;
     };
+
+    const dispatch = useDispatch();
     return (
         <div className={cx('wrapper')}>
             <Title title={title} type={type} />
@@ -42,7 +46,7 @@ function Discount({ props, title, sale, type }) {
                                 </div>
                             </div>
                         </div>
-                        <div className={cx('shopping')}>
+                        <div className={cx('shopping')} onClick={() => dispatch(selectProduct(prop))}>
                             <FontAwesomeIcon icon={faBasketShopping} className={cx('shopping-icon')} />
                         </div>
                         {prop.percentDiscount !== 0 && (

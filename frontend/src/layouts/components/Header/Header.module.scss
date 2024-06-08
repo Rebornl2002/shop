@@ -46,9 +46,9 @@
 
 .more-btn {
     font-size: 2rem;
-    margin-left: 28px;
     background-color: transparent;
     padding: 4px 8px;
+    color: var(--default-bold);
     cursor: pointer;
 }
 .action-btn {
@@ -77,6 +77,60 @@
     font-size: 2rem;
     margin-left: 15px;
     cursor: pointer;
-
 }
 
+.authentication-buttons-container {
+    font-size: 1.4rem;
+    padding-left: 16px;
+    color: var(--default);
+}
+
+.authentication-icon {
+    padding-right: 8px;
+    width: 20px;
+}
+
+.login-btn {
+    &:hover {
+        color: var(--default-bold);
+        cursor: pointer;
+    }
+}
+
+.register-btn {
+    &:hover {
+        color: var(--default-bold);
+        cursor: pointer;
+    }
+}
+
+//
+.logged-in-icon-container {
+    display: flex;
+    align-items: center;
+}
+
+.shopping-cart-icon {
+    margin-right: 16px;
+    cursor: pointer;
+}
+
+.ellipsis-icon {
+    cursor: pointer;
+}
+
+.menu {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.menu-item {
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    background: #f0f0f0;
+}

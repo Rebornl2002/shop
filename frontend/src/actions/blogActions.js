@@ -31,7 +31,7 @@ export const fetchBlogs = () => {
     return (dispatch) => {
         dispatch(fetchBlogsRequest());
         axios
-            .get('http://localhost:4000/api/data/blog')
+            .get('http://localhost:4000/api/data/blogs')
             .then((response) => {
                 const blogs = response.data;
                 if (Array.isArray(blogs)) {
