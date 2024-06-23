@@ -40,8 +40,9 @@
 //Actions
 
 .actions {
-    display: flex;
-    align-items: center;
+    font-size: 1.4rem;
+    padding-left: 16px;
+    color: var(--default);
 }
 
 .more-btn {
@@ -51,6 +52,7 @@
     color: var(--default-bold);
     cursor: pointer;
 }
+
 .action-btn {
     color: #161823;
     font-size: 2.2rem;
@@ -79,12 +81,6 @@
     cursor: pointer;
 }
 
-.authentication-buttons-container {
-    font-size: 1.4rem;
-    padding-left: 16px;
-    color: var(--default);
-}
-
 .authentication-icon {
     padding-right: 8px;
     width: 20px;
@@ -107,7 +103,7 @@
 //
 .logged-in-icon-container {
     display: flex;
-    align-items: center;
+    align-items: baseline;
 }
 
 .shopping-cart-icon {

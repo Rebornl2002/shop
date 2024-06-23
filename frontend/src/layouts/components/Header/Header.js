@@ -1,26 +1,21 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-    faShoppingCart,
-    faRightToBracket,
-    faUserPlus,
-    faEllipsisVertical,
-    faUser,
-    faSignOut,
-} from '@fortawesome/free-solid-svg-icons';
+import { faRightToBracket, faUserPlus, faEllipsisVertical, faUser, faSignOut } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import config from '@/config';
 import Login from './Login';
 import Register from './Register';
-
 import Search from '@/layouts/components/Search';
 import ListMenu from './ListMenu';
 import styles from './Header.module.scss';
 import images from '@/assets/images';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '@/actions/userActions';
 import Menu from '@/components/Popper/Menu';
+import Cart from '../Cart';
+import { getCartData } from '@/actions/cartActions';
 
 const cx = classNames.bind(styles);
 
@@ -28,8 +23,16 @@ function Header() {
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
     const [isLoginForm, setIsLoginForm] = useState(true);
     const [authentication, setAuthentication] = useState(false);
+    const userCurrent = useSelector((state) => state.user.currentUser);
+    const data = useSelector((state) => state.cart.carts);
 
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            dispatch(getCartData(userCurrent));
+        }
+    }, [isLoggedIn]);
 
     const handleLogout = () => {
         dispatch(logout());
@@ -61,6 +64,7 @@ function Header() {
         {
             icon: <FontAwesomeIcon icon={faUser} />,
             title: 'View profile',
+            to: '/profile',
         },
         {
             icon: <FontAwesomeIcon icon={faSignOut} />,
@@ -80,7 +84,8 @@ function Header() {
                 <Search />
                 {isLoggedIn && (
                     <div className={cx('logged-in-icon-container')}>
-                        <FontAwesomeIcon icon={faShoppingCart} className={cx('shopping-cart-icon')} />
+                        <Cart data={data} />
+
                         <Menu items={userMenu}>
                             <button className={cx('more-btn')}>
                                 <FontAwesomeIcon icon={faEllipsisVertical} />
@@ -88,26 +93,24 @@ function Header() {
                         </Menu>
                     </div>
                 )}
-                <div className={cx('actions')}>
-                    {!isLoggedIn && (
-                        <div className={cx('authentication-buttons-container')}>
-                            <div className={cx('login-btn')} onClick={handleOpenLoginForm}>
-                                <FontAwesomeIcon icon={faRightToBracket} className={cx('authentication-icon')} />
-                                Đăng nhập
-                            </div>
-                            <div className={cx('register-btn')} onClick={handleOpenRegisterForm}>
-                                <FontAwesomeIcon icon={faUserPlus} className={cx('authentication-icon')} />
-                                Đăng kí
-                            </div>
+                {!isLoggedIn && (
+                    <div className={cx('actions')}>
+                        <div className={cx('login-btn')} onClick={handleOpenLoginForm}>
+                            <FontAwesomeIcon icon={faRightToBracket} className={cx('authentication-icon')} />
+                            Đăng nhập
                         </div>
-                    )}
-                </div>
-                {authentication && isLoginForm && (
-                    <Login onChange={handleChangeRegisterForm} onClose={handleCloseAuthenticationForm} />
+                        <div className={cx('register-btn')} onClick={handleOpenRegisterForm}>
+                            <FontAwesomeIcon icon={faUserPlus} className={cx('authentication-icon')} />
+                            Đăng kí
+                        </div>
+                    </div>
                 )}
-                {authentication && !isLoginForm && (
-                    <Register onChange={handleChangeLoginForm} onClose={handleCloseAuthenticationForm} />
-                )}
+                {authentication &&
+                    (isLoginForm ? (
+                        <Login onChange={handleChangeRegisterForm} onClose={handleCloseAuthenticationForm} />
+                    ) : (
+                        <Register onChange={handleChangeLoginForm} onClose={handleCloseAuthenticationForm} />
+                    ))}
             </div>
         </header>
     );

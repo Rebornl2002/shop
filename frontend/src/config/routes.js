@@ -1,9 +1,10 @@
 const routes = {
     home: '/',
     following: '/following',
-    profile: ':nickname',
+    product: '/product',
     upload: '/upload',
     search: '/search',
+    profile: '/profile',
 };
 
 export default routes;

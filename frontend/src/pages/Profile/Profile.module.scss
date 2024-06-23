@@ -1,0 +1,55 @@
+.wrapper {
+    position: relative;
+    padding: 16px 0px;
+    user-select: none;
+}
+
+.container {
+    background-color: var(--white);
+    padding: 20px;
+}
+
+.title {
+    font-size: 2rem;
+    text-transform: capitalize;
+}
+
+.safety-warning {
+    font-size: 1.4rem;
+    color: #555;
+    border-bottom: 1px solid #f8f8f8;
+    padding-bottom: 16px;
+}
+
+.info {
+    padding: 0px 20px;
+}
+
+.properties {
+    display: block;
+    color: var(--default-bold);
+    font-size: 1.4rem;
+    margin-top: 8px;
+}
+
+.input-info {
+    font-size: 1.4rem;
+    width: 100%;
+}
+
+.save-btn {
+    background-color: var(--default-bold);
+    color: var(--white);
+    padding: 4px;
+    width: 10%;
+    text-align: center;
+    border-radius: 4px;
+    margin-left: 20px;
+    margin-top: 18px;
+    cursor: pointer;
+}
+
+.sex-value {
+    font-size: 1.4rem;
+    padding: 0 16px 0 8px;
+}

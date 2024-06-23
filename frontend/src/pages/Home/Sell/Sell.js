@@ -6,7 +6,8 @@ import Title from '../Title';
 import sale1 from '@/assets/images/sale1.jpg';
 import sale2 from '@/assets/images/sale2.jpg';
 import { useDispatch } from 'react-redux';
-import { selectProduct } from '@/actions/productActions';
+import { getProduct, selectProduct } from '@/actions/productActions';
+import { Link } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -29,23 +30,25 @@ function Discount({ props, title, sale, type }) {
             <div className={cx('wrapper-item')}>
                 {props.map((prop, index) => (
                     <div key={index} className={cx('item')}>
-                        <div className={cx('container-item')}>
-                            <img src={prop.imgSrc} alt={prop.name} className={cx('item-img')} />
-                            <div className={cx('content-item')}>
-                                <div className={cx('item-name')}>{prop.name}</div>
-                                <div className={cx('item-price')}>
-                                    <div className={cx('item-reduced-price')}>
-                                        Giá:{' '}
-                                        <span style={{ fontWeight: 700, fontSize: 1.4 + 'rem' }}>
-                                            {formattedPrice(handGetReducePrice(prop.price, prop.percentDiscount))}
-                                        </span>
+                        <Link to={`product/${prop.maSP}`}>
+                            <div className={cx('container-item')}>
+                                <img src={prop.imgSrc} alt={prop.name} className={cx('item-img')} />
+                                <div className={cx('content-item')}>
+                                    <div className={cx('item-name')}>{prop.name}</div>
+                                    <div className={cx('item-price')}>
+                                        <div className={cx('item-reduced-price')}>
+                                            Giá:{' '}
+                                            <span style={{ fontWeight: 700, fontSize: 1.4 + 'rem' }}>
+                                                {formattedPrice(handGetReducePrice(prop.price, prop.percentDiscount))}
+                                            </span>
+                                        </div>
+                                        {prop.percentDiscount !== 0 && (
+                                            <div className={cx('item-cost')}>{formattedPrice(prop.price)}</div>
+                                        )}
                                     </div>
-                                    {prop.percentDiscount !== 0 && (
-                                        <div className={cx('item-cost')}>{formattedPrice(prop.price)}</div>
-                                    )}
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                         <div className={cx('shopping')} onClick={() => dispatch(selectProduct(prop))}>
                             <FontAwesomeIcon icon={faBasketShopping} className={cx('shopping-icon')} />
                         </div>

@@ -5,7 +5,9 @@ import axios from 'axios';
 export const FETCH_PRODUCTS_REQUEST = 'FETCH_PRODUCTS_REQUEST';
 export const FETCH_PRODUCTS_SUCCESS = 'FETCH_PRODUCTS_SUCCESS';
 export const FETCH_PRODUCTS_FAILURE = 'FETCH_PRODUCTS_FAILURE';
+export const SEARCH_PRODUCTS = 'SEARCH_PRODUCTS';
 export const SELECT_PRODUCT = 'SELECT_PRODUCT';
+export const DETAIL_PRODUCT = 'DETAIL_PRODUCT';
 
 // Action creators
 export const fetchProductsRequest = () => {
@@ -35,6 +37,20 @@ export const selectProduct = (product) => {
     };
 };
 
+export const detailProduct = (product) => {
+    return {
+        type: DETAIL_PRODUCT,
+        payload: product,
+    };
+};
+
+export const searchProducts = (products) => {
+    return {
+        type: SEARCH_PRODUCTS,
+        payload: products,
+    };
+};
+
 // Async action creator using thunk
 export const fetchProducts = () => {
     return (dispatch) => {
@@ -43,7 +59,6 @@ export const fetchProducts = () => {
             .get('http://localhost:4000/api/data/products')
             .then((response) => {
                 const products = response.data;
-                dispatch(fetchProductsSuccess(products));
                 if (Array.isArray(products)) {
                     // Kiểm tra dữ liệu trả về có phải là mảng không
                     dispatch(fetchProductsSuccess(products));
@@ -54,6 +69,50 @@ export const fetchProducts = () => {
             .catch((error) => {
                 const errorMsg = error.message;
                 dispatch(fetchProductsFailure(errorMsg));
+            });
+    };
+};
+
+export const fetchSearchProducts = (value) => {
+    return (dispatch) => {
+        axios
+            .get(`http://localhost:4000/api/data/products/search?productName=${value}`)
+            .then((response) => {
+                const products = response.data;
+                if (Array.isArray(products)) {
+                    // Kiểm tra dữ liệu trả về có phải là mảng không
+                    dispatch(searchProducts(products));
+                } else {
+                    dispatch(fetchProductsFailure('Invalid data format')); // Xử lý dữ liệu không hợp lệ
+                }
+                return Promise.resolve();
+            })
+            .catch((error) => {
+                const errorMsg = error.message;
+                dispatch(fetchProductsFailure(errorMsg));
+                return Promise.reject();
+            });
+    };
+};
+
+export const fetchDetailProducts = (id) => {
+    return (dispatch) => {
+        axios
+            .get(`http://localhost:4000/api/data/products/details?id=${id}`)
+            .then((response) => {
+                const products = response.data;
+                if (Array.isArray(products)) {
+                    // Kiểm tra dữ liệu trả về có phải là mảng không
+                    dispatch(detailProduct(products));
+                } else {
+                    dispatch(fetchProductsFailure('Invalid data format')); // Xử lý dữ liệu không hợp lệ
+                }
+                return Promise.resolve();
+            })
+            .catch((error) => {
+                const errorMsg = error.message;
+                dispatch(fetchProductsFailure(errorMsg));
+                return Promise.reject();
             });
     };
 };

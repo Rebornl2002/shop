@@ -9,6 +9,10 @@ import { fetchBlogs } from '@/actions/blogActions';
 import { fetchProducts, selectProduct } from '@/actions/productActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { addCart, getCartData } from '@/actions/cartActions';
+import { Toast } from '@/components/Toast/Toast';
+import { handleCalulatePrice } from '@/calculate/price';
+
 const cx = classNames.bind(styles);
 
 function Home() {
@@ -25,21 +29,13 @@ function Home() {
     const [quantity, setQuantity] = useState(0);
     const [showProduct, setShowProduct] = useState(false);
 
-    const useCurrent = useSelector((state) => state.user.currentUser);
-
-    console.log(useCurrent);
+    const userCurrent = useSelector((state) => state.user.currentUser);
+    const isLogin = useSelector((state) => state.user.isLoggedIn);
 
     useEffect(() => {
         dispatch(fetchBlogs());
         dispatch(fetchProducts());
     }, [dispatch]);
-
-    const formattedPrice = (price) => {
-        return price.toLocaleString('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-        });
-    };
 
     const handleAddQuantity = () => {
         setQuantity(quantity + 1);
@@ -55,14 +51,20 @@ function Home() {
         dispatch(selectProduct(undefined));
     };
 
-    const totalMoney = (price, percentDiscount, quantity) => {
-        const salePrice = price - (price * percentDiscount) / 100;
-
-        if (quantity === 0) {
-            return salePrice;
+    const handleAddCart = () => {
+        if (quantity !== 0) {
+            if (!isLogin) {
+                Toast.error('Vui lòng đăng nhập để thêm sản phẩm ');
+            } else {
+                dispatch(addCart(userCurrent, selectedProduct.maSP, quantity))
+                    .then(() => {
+                        return dispatch(getCartData(userCurrent));
+                    })
+                    .catch((error) => {
+                        console.error('Eror', error);
+                    });
+            }
         }
-
-        return salePrice * quantity;
     };
 
     useEffect(() => {
@@ -101,8 +103,10 @@ function Home() {
                             <div className={cx('price-product')}>
                                 Giá:{' '}
                                 <span style={{ fontWeight: 700 }}>
-                                    {formattedPrice(
-                                        totalMoney(selectedProduct.price, selectedProduct.percentDiscount, quantity),
+                                    {handleCalulatePrice(
+                                        selectedProduct.price,
+                                        selectedProduct.percentDiscount,
+                                        quantity,
                                     )}
                                 </span>
                             </div>
@@ -123,7 +127,10 @@ function Home() {
                                 </div>
                             </div>
                             <div className={cx('btn')}>
-                                <div className={cx('product-btn', { 'product-btn-ban': quantity === 0 })}>
+                                <div
+                                    className={cx('product-btn', { 'product-btn-ban': quantity === 0 })}
+                                    onClick={handleAddCart}
+                                >
                                     Thêm vào giỏ hàng
                                 </div>
                                 <div className={cx('product-btn', { 'product-btn-ban': quantity === 0 })}>Mua ngay</div>

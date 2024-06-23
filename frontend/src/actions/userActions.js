@@ -74,18 +74,20 @@ export const checkUser = (username, password) => {
                     dispatch(setMessage(message));
                     dispatch(loginSuccess());
                     localStorage.setItem('isLoggedIn', 'true');
-                    dispatch(setCurrentUser(username));
+                    dispatch(setCurrentUser(response.data.token));
                     Toast.success(message);
                 } else {
                     dispatch(fetchUsersFailure(message));
                     Toast.error(message);
                 }
+                return Promise.resolve();
             })
             .catch((error) => {
                 const errorMsg = error.response?.data?.message || error.message;
                 dispatch(fetchUsersFailure(errorMsg));
                 dispatch(setMessage(errorMsg));
                 Toast.error(errorMsg);
+                return Promise.reject();
             });
     };
 };
@@ -99,12 +101,14 @@ export const creatUser = (username, password) => {
                 const message = response.data.message;
                 dispatch(setMessage(message));
                 Toast.success(message);
+                return Promise.resolve();
             })
             .catch((error) => {
                 const errorMsg = error.response?.data?.message || error.message;
                 dispatch(fetchUsersFailure(errorMsg));
                 dispatch(setMessage(errorMsg));
                 Toast.error(errorMsg);
+                return Promise.reject();
             });
     };
 };
