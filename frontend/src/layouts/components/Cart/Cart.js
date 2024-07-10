@@ -3,8 +3,9 @@ import classNames from 'classnames/bind';
 import styles from './Cart.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
-import { totalMoney, formattedPrice, handleCalulatePrice } from '@/calculate/price';
+import { totalMoney, formattedPrice, handleCalulatePrice } from '@/calculate/caculate';
 import Empty from '@/assets/images/cartEmpty.jpg';
+import { Link } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -80,13 +81,16 @@ function Cart({ data }) {
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                 }}
+                                                id="tick"
                                             />
+
                                             <div
                                                 className={cx('product-img')}
                                                 style={{
                                                     backgroundImage: `url(${item.imgSrc})`,
                                                 }}
                                             ></div>
+
                                             <div className={cx('product-info')}>
                                                 <div className={cx('product-title')}>
                                                     {item.name} x {item.quantity}
@@ -108,7 +112,9 @@ function Cart({ data }) {
                         </div>
                         <div className={cx('cart-buy')}>
                             <div className={cx('total-money')}>Tổng: {formattedPrice(totalMoneySelected())}</div>
-                            <div className={cx('cart-btn')}>Xem giỏ hàng</div>
+                            <Link to="/detailCart">
+                                <div className={cx('cart-btn')}>Xem giỏ hàng</div>
+                            </Link>
                             <div className={cx('buy-btn')}>Mua ngay</div>
                         </div>
                     </div>

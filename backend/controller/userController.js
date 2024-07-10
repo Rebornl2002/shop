@@ -80,7 +80,86 @@ async function checkUserLogin(req, res) {
     }
 }
 
+async function getDetailUser(req, res) {
+    const token = req.headers.authorization && req.headers.authorization.split(' ')[1]; // Lấy token từ header Authorization
+
+    if (!token) {
+        return res.status(401).json({ message: 'Token không hợp lệ!' });
+    }
+
+    try {
+        // Xác thực token JWT
+        const decoded = jwt.verify(token, secretKey);
+        const username = decoded.username; // Lấy thông tin username từ token
+
+        // Kết nối đến cơ sở dữ liệu
+        await connectToDatabase();
+
+        const result = await sql.query`
+            SELECT *
+            FROM detailUser
+            WHERE username = ${username}
+        `;
+
+        return res.json(result.recordset);
+    } catch (error) {
+        return res.status(500).json({ message: 'Lỗi khi lấy dữ liệu từ bảng detailUser!' });
+    }
+}
+
+async function updateDetailUser(req, res) {
+    const token = req.headers.authorization && req.headers.authorization.split(' ')[1]; // Lấy token từ header Authorization
+
+    if (!token) {
+        return res.status(401).json({ message: 'Token không hợp lệ!' });
+    }
+
+    try {
+        // Xác thực token JWT
+        const decoded = jwt.verify(token, secretKey);
+        const username = decoded.username; // Lấy thông tin username từ token
+
+        // Lấy dữ liệu cần cập nhật từ body của request
+        let { fullName, email, phone, sex, date, address } = req.body;
+
+        // Kiểm tra và đặt giá trị null nếu là chuỗi rỗng
+        fullName = fullName === '' ? null : fullName;
+        email = email === '' ? null : email;
+        phone = phone === '' ? null : phone;
+        sex = sex === '' ? null : sex;
+        date = date === '' ? null : date;
+        address = address === '' ? null : address;
+
+        // Kết nối đến cơ sở dữ liệu
+        await connectToDatabase();
+
+        // Cập nhật dữ liệu trong bảng detailUser
+        const result = await sql.query`
+            UPDATE detailUser
+            SET 
+                fullName = ${fullName}, 
+                email = ${email}, 
+                phone = ${phone}, 
+                sex = ${sex}, 
+                date = ${date}, 
+                address = ${address}
+            WHERE username = ${username}
+        `;
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy người dùng!' });
+        }
+
+        return res.json({ message: 'Cập nhật thông tin người dùng thành công!' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Lỗi khi cập nhật dữ liệu trong bảng userDetail!' });
+    }
+}
+
 module.exports = {
     createUser,
     checkUserLogin,
+    getDetailUser,
+    updateDetailUser,
 };

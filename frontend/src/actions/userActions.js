@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Toast } from '../components/Toast/Toast.js';
+import { convertToISODate } from '@/calculate/caculate.js';
 
 // Action types
 export const FETCH_USERS_REQUEST = 'FETCH_USERS_REQUEST';
@@ -9,6 +10,7 @@ export const SET_LOGIN_MESSAGE = 'SET_LOGIN_MESSAGE';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGOUT = 'LOGOUT';
 export const SET_CURRENT_USER = 'SET_CURRENT_USER';
+export const DETAIL_USER = 'DETAIL_USER';
 
 // Action creators
 export const fetchUsersRequest = () => {
@@ -62,11 +64,18 @@ export const logout = () => {
     };
 };
 
+export const detailUser = (user) => {
+    return {
+        type: DETAIL_USER,
+        payload: user,
+    };
+};
+
 // Async action creator using thunk
 export const checkUser = (username, password) => {
     return (dispatch) => {
         dispatch(fetchUsersRequest());
-        axios
+        return axios
             .post(`http://localhost:4000/api/data/users/login`, { username, password })
             .then((response) => {
                 const message = response.data.message;
@@ -95,7 +104,7 @@ export const checkUser = (username, password) => {
 export const creatUser = (username, password) => {
     return (dispatch) => {
         dispatch(fetchUsersRequest());
-        axios
+        return axios
             .post(`http://localhost:4000/api/data/users`, { username, password })
             .then((response) => {
                 const message = response.data.message;
@@ -110,5 +119,54 @@ export const creatUser = (username, password) => {
                 Toast.error(errorMsg);
                 return Promise.reject();
             });
+    };
+};
+
+export const fetchDetailUser = (token) => {
+    return (dispatch) => {
+        return axios
+            .get('http://localhost:4000/api/data/detailUser', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((response) => {
+                const user = response.data;
+                if (Array.isArray(user)) {
+                    // Kiểm tra dữ liệu trả về có phải là mảng không
+                    dispatch(detailUser(user));
+                } else {
+                    dispatch(fetchUsersFailure(user));
+                }
+                return Promise.resolve();
+            })
+            .catch((error) => {
+                console.error(error);
+                return Promise.reject();
+            });
+    };
+};
+
+export const fetchUpdateDetailUser = (data, token) => {
+    return () => {
+        axios
+            .put(
+                'http://localhost:4000/api/data/updateDetailUser',
+                {
+                    fullName: data.fullName,
+                    email: data.email,
+                    phone: data.phone,
+                    sex: data.sex,
+                    date: convertToISODate(data.date),
+                    address: data.address,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            )
+            .then((response) => Toast.success('Cập nhật dữ liệu thành công !'))
+            .catch((error) => Toast.error(error));
     };
 };

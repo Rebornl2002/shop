@@ -7,11 +7,13 @@ import {
     LOGIN_SUCCESS,
     LOGOUT,
     SET_CURRENT_USER,
+    DETAIL_USER,
 } from '../actions/userActions';
 
 const initialState = {
     loading: false,
     users: [],
+    detail: [],
     error: '',
     loginMessage: '',
     isLoggedIn: localStorage.getItem('isLoggedIn') === 'true', // Kiểm tra trạng thái đăng nhập từ localStorage
@@ -62,6 +64,11 @@ const userReducer = (state = initialState, action) => {
             return {
                 ...state,
                 currentUser: action.payload,
+            };
+        case DETAIL_USER:
+            return {
+                ...state,
+                detail: action.payload,
             };
         default:
             return state;

@@ -10,10 +10,13 @@ router.get('/products', productController.getAllProducts);
 router.get('/carts', cartController.getCartData);
 router.get('/products/search', productController.getSearchProducts);
 router.get('/products/details', productController.getDetailProduct);
+router.get('/detailUser', userController.getDetailUser);
 
 router.post('/users/login', userController.checkUserLogin);
 router.post('/users', userController.createUser);
 router.post('/carts', cartController.addToCart);
+
+router.put('/updateDetailUser', userController.updateDetailUser);
 
 router.delete('/blogs/:id', blogController.deleteBlog);
 

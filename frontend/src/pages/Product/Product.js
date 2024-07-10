@@ -2,10 +2,11 @@ import classNames from 'classnames/bind';
 import styles from './Product.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight, faCartPlus, faTruckFast } from '@fortawesome/free-solid-svg-icons';
-import { formattedPrice, handleCalulatePrice } from '@/calculate/price';
+import { formattedPrice, handleCalulatePrice } from '@/calculate/caculate';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDetailProducts } from '@/actions/productActions';
+import { fetchDetailUser } from '@/actions/userActions';
 import { useParams } from 'react-router-dom';
 import { Toast } from '@/components/Toast/Toast';
 import { addCart, getCartData } from '@/actions/cartActions';
@@ -17,14 +18,31 @@ function Product() {
     const { id } = useParams();
     const detailProduct = useSelector((state) => state.product.details);
     const [quantity, setQuantity] = useState(1);
+
     const isLogin = useSelector((state) => state.user.isLoggedIn);
+    const detailUser = useSelector((state) => state.user.detail);
     const userCurrent = useSelector((state) => state.user.currentUser);
+    const [address, setAddress] = useState('');
+
+    useEffect(() => {
+        if (userCurrent) {
+            dispatch(fetchDetailUser(userCurrent));
+        }
+    }, [dispatch, userCurrent]);
+
+    useEffect(() => {
+        if (detailUser.length > 0) {
+            setAddress(detailUser[0].address);
+        }
+    }, [detailUser]);
 
     useEffect(() => {
         dispatch(fetchDetailProducts(id));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
+    console.log(detailUser);
+    console.log(address);
     const handleAddQuantity = () => {
         setQuantity(quantity + 1);
     };
@@ -81,7 +99,13 @@ function Product() {
                                 <span className={cx('attribute-name')}>Vận chuyển</span>
                                 <FontAwesomeIcon icon={faTruckFast} className={cx('icon')} />
                                 <span>Vận chuyển tới</span>
-                                <input type="text" placeholder="Vui lòng nhập địa chỉ" className={cx('address')} />
+                                <input
+                                    type="text"
+                                    placeholder="Vui lòng nhập địa chỉ"
+                                    className={cx('address')}
+                                    value={address}
+                                    onChange={(e) => setAddress(e.target.value)}
+                                />
                             </div>
                             <div className={cx('quantity')}>
                                 <span className={cx('attribute-name')}>Số lượng</span>

@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { addCart, getCartData } from '@/actions/cartActions';
 import { Toast } from '@/components/Toast/Toast';
-import { handleCalulatePrice } from '@/calculate/price';
+import { handleCalulatePrice } from '@/calculate/caculate';
 
 const cx = classNames.bind(styles);
 

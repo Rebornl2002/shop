@@ -3,7 +3,7 @@ const routes = {
     following: '/following',
     product: '/product',
     upload: '/upload',
-    search: '/search',
+    detailCart: '/detailCart',
     profile: '/profile',
 };
 

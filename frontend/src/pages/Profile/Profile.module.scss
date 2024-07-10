@@ -53,3 +53,13 @@
     font-size: 1.4rem;
     padding: 0 16px 0 8px;
 }
+
+.err-mess {
+    display: none;
+    font-size: 1.4rem;
+    color: var(--primary);
+}
+
+.err-mess-active {
+    display: block;
+}

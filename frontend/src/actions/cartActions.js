@@ -62,7 +62,7 @@ export const addCartFailure = (error) => {
 export const getCartData = (token) => {
     return (dispatch) => {
         dispatch(fetchCartsRequest());
-        axios
+        return axios
             .get(`http://localhost:4000/api/data/carts`, {
                 headers: {
                     Authorization: `Bearer ${token}`, // Gửi token JWT trong header Authorization

@@ -5,7 +5,7 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSearchProducts } from '@/actions/productActions';
-import { handleCalulatePrice } from '@/calculate/price';
+import { handleCalulatePrice } from '@/calculate/caculate';
 import { Link } from 'react-router-dom';
 import routes from '@/config/routes';
 
