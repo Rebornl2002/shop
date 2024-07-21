@@ -88,6 +88,9 @@
     width: 25%;
     text-align: center;
     color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     span {
         display: inline-block;
@@ -143,5 +146,71 @@
 
 .icon {
     cursor: pointer;
-    color: var(--default-bold);
+    color: var(--default);
+    padding: 8px;
+}
+
+.icon-ban {
+    color: #ccc;
+    cursor: default;
+}
+
+.payment {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 8px 16px 32px;
+    background-color: #fff;
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
+.payment-select {
+    display: flex;
+    align-items: center;
+    width: 20%;
+    justify-content: space-between;
+}
+
+.payment-summary {
+    flex: 1;
+    padding-left: 8px;
+}
+
+.delete {
+    transition: all 0.3s ease;
+
+    &:hover {
+        cursor: pointer;
+        color: var(--primary);
+    }
+}
+
+.payment-total {
+    display: flex;
+    width: 40%;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.total {
+    width: 50%;
+    span {
+        color: var(--primary);
+    }
+}
+
+.buy-btn {
+    background-color: var(--default);
+    color: var(--white);
+    padding: 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+
+    &:hover {
+        cursor: pointer;
+        background-color: var(--default-bold);
+    }
 }

@@ -27,7 +27,7 @@
 
 .properties {
     display: block;
-    color: var(--default-bold);
+    color: var(--default);
     font-size: 1.4rem;
     margin-top: 8px;
 }
@@ -38,7 +38,7 @@
 }
 
 .save-btn {
-    background-color: var(--default-bold);
+    background-color: var(--default);
     color: var(--white);
     padding: 4px;
     width: 10%;

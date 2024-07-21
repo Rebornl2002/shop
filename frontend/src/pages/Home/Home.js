@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { addCart, getCartData } from '@/actions/cartActions';
 import { Toast } from '@/components/Toast/Toast';
-import { handleCalulatePrice } from '@/calculate/caculate';
+import { handleCalculatePrice } from '@/calculate/calculate';
 
 const cx = classNames.bind(styles);
 
@@ -103,7 +103,7 @@ function Home() {
                             <div className={cx('price-product')}>
                                 Giá:{' '}
                                 <span style={{ fontWeight: 700 }}>
-                                    {handleCalulatePrice(
+                                    {handleCalculatePrice(
                                         selectedProduct.price,
                                         selectedProduct.percentDiscount,
                                         quantity,

@@ -17,7 +17,9 @@ router.post('/users', userController.createUser);
 router.post('/carts', cartController.addToCart);
 
 router.put('/updateDetailUser', userController.updateDetailUser);
+router.put('/updateCartQuantity', cartController.updateCartQuantity);
 
 router.delete('/blogs/:id', blogController.deleteBlog);
+router.delete('/carts', cartController.deleteCart);
 
 module.exports = router;

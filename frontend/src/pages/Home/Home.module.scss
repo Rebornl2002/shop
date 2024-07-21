@@ -80,7 +80,7 @@
     cursor: pointer;
 
     &:hover {
-        color: var(--default-bold);
+        color: var(--default);
     }
 }
 
@@ -102,7 +102,7 @@
 }
 
 .product-btn {
-    background-color: var(--default-bold);
+    background-color: var(--default);
     padding: 8px;
     border-radius: 4px;
     color: var(--white);
@@ -123,6 +123,6 @@
     cursor: pointer;
 
     &:hover {
-        color: var(--default-bold);
+        color: var(--default);
     }
 }

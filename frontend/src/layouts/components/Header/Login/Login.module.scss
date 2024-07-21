@@ -58,12 +58,12 @@
 }
 
 .login-icon {
-    color: var(--default-bold);
+    color: var(--default);
 }
 
 .login-input {
     padding-left: 12px;
-    caret-color: var(--default-bold);
+    caret-color: var(--default);
     font-size: 1.6rem;
     flex: 1;
 }
@@ -73,12 +73,12 @@
 }
 
 .register-link {
-    color: var(--default-bold);
+    color: var(--default);
     cursor: pointer;
 }
 
 .login-btn {
-    background-color: var(--default-bold);
+    background-color: var(--default);
     color: var(--white);
     margin-top: 16px;
     height: 36px;
@@ -96,6 +96,6 @@
     cursor: pointer;
 
     &:hover {
-        color: var(--default-bold);
+        color: var(--default);
     }
 }

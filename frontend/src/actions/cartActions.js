@@ -122,3 +122,48 @@ export const addCart = (token, maSP, quantity) => {
             });
     };
 };
+
+export const updateCartQuantity = (token, maSP, quantity) => {
+    return () => {
+        return axios
+            .put(
+                'http://localhost:4000/api/data/updateCartQuantity',
+                { maSP, quantity },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Gửi token JWT trong header Authorization
+                    },
+                },
+            )
+            .then((response) => {
+                Toast.success(response);
+                return Promise.resolve();
+            })
+            .catch((error) => {
+                Toast.error(error);
+                return Promise.reject();
+            });
+    };
+};
+
+export const deleteCart = (token, maSP) => {
+    return () => {
+        return axios
+            .delete('http://localhost:4000/api/data/carts', {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Gửi token JWT trong header Authorization
+                },
+                data: {
+                    maSP, // Gửi dữ liệu maSP trong phần body của yêu cầu
+                },
+            })
+            .then((response) => {
+                Toast.success(response);
+                return Promise.resolve();
+            })
+            .catch((error) => {
+                Toast.error(error);
+                return Promise.reject();
+            });
+    };
+};

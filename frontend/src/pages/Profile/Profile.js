@@ -3,7 +3,7 @@ import styles from './Profile.module.scss';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { fetchDetailUser, fetchUpdateDetailUser } from '@/actions/userActions';
-import { formatDateString, isValidDate, isValidEmail, isValidPhoneNumber } from '@/calculate/caculate';
+import { formatDateString, isValidDate, isValidEmail, isValidPhoneNumber } from '@/calculate/calculate';
 import { Toast } from '@/components/Toast/Toast';
 
 const cx = classNames.bind(styles);

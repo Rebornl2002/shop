@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Toast } from '../components/Toast/Toast.js';
-import { convertToISODate } from '@/calculate/caculate.js';
+import { convertToISODate } from '@/calculate/calculate.js';
 
 // Action types
 export const FETCH_USERS_REQUEST = 'FETCH_USERS_REQUEST';

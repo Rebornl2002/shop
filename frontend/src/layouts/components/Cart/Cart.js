@@ -3,7 +3,7 @@ import classNames from 'classnames/bind';
 import styles from './Cart.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
-import { totalMoney, formattedPrice, handleCalulatePrice } from '@/calculate/caculate';
+import { totalMoney, formattedPrice, handleCalculatePrice } from '@/calculate/calculate';
 import Empty from '@/assets/images/cartEmpty.jpg';
 import { Link } from 'react-router-dom';
 
@@ -96,7 +96,7 @@ function Cart({ data }) {
                                                     {item.name} x {item.quantity}
                                                 </div>
                                                 <div className={cx('product-price')}>
-                                                    {handleCalulatePrice(
+                                                    {handleCalculatePrice(
                                                         item.price,
                                                         item.percentDiscount,
                                                         item.quantity,

@@ -5,7 +5,7 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSearchProducts } from '@/actions/productActions';
-import { handleCalulatePrice } from '@/calculate/caculate';
+import { handleCalculatePrice } from '@/calculate/calculate';
 import { Link } from 'react-router-dom';
 import routes from '@/config/routes';
 
@@ -71,7 +71,7 @@ function Search() {
                                 <div className={cx('result-inf')}>
                                     <div className={cx('result-name')}> {product.name}</div>
                                     <div className={cx('result-price')}>
-                                        {handleCalulatePrice(product.price, product.percentDiscount, 1)}
+                                        {handleCalculatePrice(product.price, product.percentDiscount, 1)}
                                     </div>
                                 </div>
                             </Link>

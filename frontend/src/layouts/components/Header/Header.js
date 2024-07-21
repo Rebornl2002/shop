@@ -63,12 +63,12 @@ function Header() {
     const userMenu = [
         {
             icon: <FontAwesomeIcon icon={faUser} />,
-            title: 'View profile',
+            title: 'Hồ sơ',
             to: '/profile',
         },
         {
             icon: <FontAwesomeIcon icon={faSignOut} />,
-            title: 'Log out',
+            title: 'Đăng xuất',
             onClick: handleLogout,
             separate: true,
         },

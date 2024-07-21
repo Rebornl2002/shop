@@ -9,7 +9,7 @@ export const totalMoney = (price, percentDiscount, quantity) => {
     return quantity === 0 ? salePrice : salePrice * quantity;
 };
 
-export const handleCalulatePrice = (price, percentDiscount, quantity) => {
+export const handleCalculatePrice = (price, percentDiscount, quantity) => {
     return formattedPrice(totalMoney(price, percentDiscount, quantity));
 };
 

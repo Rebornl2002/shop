@@ -2,7 +2,7 @@ import classNames from 'classnames/bind';
 import styles from './Product.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight, faCartPlus, faTruckFast } from '@fortawesome/free-solid-svg-icons';
-import { formattedPrice, handleCalulatePrice } from '@/calculate/caculate';
+import { formattedPrice, handleCalculatePrice } from '@/calculate/calculate';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDetailProducts } from '@/actions/productActions';
@@ -87,7 +87,7 @@ function Product() {
                                     <div className={cx('product-cost')}>{formattedPrice(detailProduct[0].price)}</div>
                                 )}
                                 <div className={cx('product-price')}>
-                                    {handleCalulatePrice(detailProduct[0].price, detailProduct[0].percentDiscount, 1)}
+                                    {handleCalculatePrice(detailProduct[0].price, detailProduct[0].percentDiscount, 1)}
                                 </div>
                                 {detailProduct[0].percentDiscount !== 0 && (
                                     <div className={cx('product-discount')}>

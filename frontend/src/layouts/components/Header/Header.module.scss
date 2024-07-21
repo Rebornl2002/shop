@@ -49,7 +49,7 @@
     font-size: 2rem;
     background-color: transparent;
     padding: 4px 8px;
-    color: var(--default-bold);
+    color: var(--default);
     cursor: pointer;
 }
 
@@ -75,7 +75,7 @@
 }
 
 .shopping-cart-icon {
-    color: var(--default-bold);
+    color: var(--default);
     font-size: 2rem;
     margin-left: 15px;
     cursor: pointer;
@@ -88,14 +88,14 @@
 
 .login-btn {
     &:hover {
-        color: var(--default-bold);
+        color: var(--default);
         cursor: pointer;
     }
 }
 
 .register-btn {
     &:hover {
-        color: var(--default-bold);
+        color: var(--default);
         cursor: pointer;
     }
 }

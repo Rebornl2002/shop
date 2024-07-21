@@ -1,0 +1,63 @@
+.wrapper {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+}
+
+.overlay {
+    background-color: rgba(0, 0, 0, 0.3);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    position: relative;
+    width: 50%;
+    background-color: var(--white);
+    padding: 16px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.notification {
+    font-size: 1.6rem;
+    color: var(--black);
+    margin-bottom: 16px;
+}
+
+.confirm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.cofirm-btn {
+    padding: 8px;
+    background-color: var(--default);
+    color: var(--white);
+    width: 16%;
+    border-radius: 4px;
+    transition: all 0.2s ease-in;
+
+    &:hover {
+        background-color: var(--default-bold);
+    }
+}
+
+.exit {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 8px;
+
+    &:hover {
+        color: var(--primary);
+        cursor: pointer;
+    }
+}
