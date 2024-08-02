@@ -12,6 +12,25 @@ async function getAllProducts(req, res) {
     }
 }
 
+async function getDiscountProducts(req, res) {
+    try {
+        // Kết nối tới cơ sở dữ liệu
+        await connectToDatabase();
+
+        // Truy vấn để lấy 4 sản phẩm có giảm giá lớn nhất
+        const result = await sql.query`SELECT TOP 4 * FROM products ORDER BY percentDiscount DESC`;
+
+        // Trả về danh sách sản phẩm dưới dạng JSON
+        res.json(result.recordset);
+    } catch (err) {
+        // Ghi log lỗi
+        console.error('Database connection failed:', err);
+
+        // Trả về lỗi 500 với thông báo lỗi
+        res.status(500).send('Database connection failed');
+    }
+}
+
 async function getSearchProducts(req, res) {
     const { productName } = req.query; // Lấy tên sản phẩm từ query params
     try {
@@ -45,8 +64,8 @@ async function getDetailProduct(req, res) {
         const result = await sql.query`
             SELECT dp.*, p.*
             FROM detailProducts dp
-            JOIN products p ON dp.maSP = p.maSP
-            WHERE dp.maSP = ${id}`;
+            JOIN products p ON dp.id = p.id
+            WHERE dp.id = ${id}`;
         res.json(result.recordset);
     } catch (err) {
         console.error('Database connection failed:', err);
@@ -58,4 +77,5 @@ module.exports = {
     getAllProducts,
     getSearchProducts,
     getDetailProduct,
+    getDiscountProducts,
 };

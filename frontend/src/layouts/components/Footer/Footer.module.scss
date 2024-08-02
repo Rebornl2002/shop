@@ -1,0 +1,66 @@
+.wrapper {
+    position: relative;
+    background-color: var(--white);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+.inner {
+    width: var(--default-layout-width);
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 16px;
+    gap: 30px;
+}
+
+.columns {
+    padding: 8px;
+    flex: 1;
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    padding: 8px 0px;
+}
+
+.slogan {
+    font-size: 1.4rem;
+}
+
+.phone,
+.time {
+    font-size: 1.4rem;
+    padding-top: 8px;
+
+    span {
+        padding-left: 8px;
+    }
+}
+
+.text {
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+}
+
+.follow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--default);
+    }
+}
+
+.follow-icon {
+    font-size: 1.6rem;
+    min-width: 20px;
+}

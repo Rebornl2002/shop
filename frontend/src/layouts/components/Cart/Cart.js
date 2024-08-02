@@ -35,9 +35,9 @@ function Cart({ data }) {
 
     const handleTickProduct = (item) => {
         setSelectedProduct((prevSelected) => {
-            if (prevSelected.some((product) => product.maSP === item.maSP)) {
+            if (prevSelected.some((product) => product.id === item.id)) {
                 // Xóa sản phẩm nếu nó đã tồn tại trong danh sách
-                return prevSelected.filter((product) => product.maSP !== item.maSP);
+                return prevSelected.filter((product) => product.id !== item.id);
             } else {
                 // Thêm sản phẩm nếu nó chưa tồn tại trong danh sách
                 return [...prevSelected, item];
@@ -66,7 +66,7 @@ function Cart({ data }) {
                         <div className={cx('container')}>
                             {data.length > 0 ? (
                                 data.map((item, index) => {
-                                    const isSelected = selectedProduct.some((product) => product.maSP === item.maSP);
+                                    const isSelected = selectedProduct.some((product) => product.id === item.id);
                                     return (
                                         <label
                                             key={index}

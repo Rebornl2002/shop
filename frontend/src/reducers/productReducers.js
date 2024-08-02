@@ -6,11 +6,13 @@ import {
     SELECT_PRODUCT,
     SEARCH_PRODUCTS,
     DETAIL_PRODUCT,
+    DISCOUNT_PRODUCT,
 } from '../actions/productActions.js';
 
 const initialState = {
     loading: false,
     products: [],
+    discountProducts: [],
     searchs: [],
     details: [],
     error: '',
@@ -51,6 +53,11 @@ const productReducer = (state = initialState, action) => {
             return {
                 ...state,
                 details: action.payload,
+            };
+        case DISCOUNT_PRODUCT:
+            return {
+                ...state,
+                discountProducts: action.payload,
             };
         default:
             return state;

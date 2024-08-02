@@ -11,7 +11,7 @@
     padding: 0px 20px;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     flex-wrap: wrap;
     gap: 16px;
 }
@@ -70,6 +70,7 @@
 .shopping-icon {
     color: #ccc;
     cursor: pointer;
+    transition: all 0.3s ease;
     &:hover {
         color: var(--default);
     }

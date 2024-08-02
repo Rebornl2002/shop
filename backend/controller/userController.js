@@ -55,19 +55,27 @@ async function createUser(req, res) {
 
 async function checkUserLogin(req, res) {
     const { username, password } = req.body;
+
+    // Xác thực đầu vào
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Vui lòng cung cấp tên người dùng và mật khẩu!' });
+    }
+
     try {
         await connectToDatabase();
         const result = await sql.query`SELECT * FROM users WHERE username = ${username}`;
 
         if (result.recordset.length > 0) {
-            // So sánh mật khẩu đã được mã hóa với mật khẩu nhập vào
-            const match = await bcrypt.compare(password, result.recordset[0].password);
-            if (match) {
-                // Tạo token JWT với payload chứa thông tin username
-                const token = jwt.sign({ username }, secretKey, { expiresIn: '1h' });
+            const user = result.recordset[0];
 
-                // Gửi về token trong phản hồi
-                return res.status(200).json({ message: 'Đăng nhập thành công!', token });
+            // So sánh mật khẩu đã được mã hóa với mật khẩu nhập vào
+            const match = await bcrypt.compare(password, user.password);
+            if (match) {
+                // Tạo token JWT với payload chứa thông tin username và vai trò
+                const token = jwt.sign({ username: user.username, role: user.role }, secretKey, { expiresIn: '1h' });
+
+                // Gửi về token và thông tin vai trò trong phản hồi
+                return res.status(200).json({ message: 'Đăng nhập thành công!', token, role: user.role });
             } else {
                 return res.status(401).json({ message: 'Tài khoản hoặc mật khẩu không chính xác!' });
             }
@@ -75,7 +83,7 @@ async function checkUserLogin(req, res) {
             return res.status(401).json({ message: 'Tài khoản hoặc mật khẩu không chính xác!' });
         }
     } catch (err) {
-        console.error('Database connection failed:', err);
+        console.error('Lỗi kết nối cơ sở dữ liệu:', err);
         return res.status(500).json({ message: 'Lỗi kết nối cơ sở dữ liệu!' });
     }
 }

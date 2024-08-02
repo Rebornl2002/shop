@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import Header from '@/layouts/components/Header/Header';
+import Footer from '../components/Footer';
 import classNames from 'classnames/bind';
 import styles from './DefaultLayout.module.scss';
 
@@ -12,6 +13,7 @@ function DefaultLayout({ children }) {
             <div className={cx('container')}>
                 <div className={cx('content')}>{children}</div>
             </div>
+            <Footer />
         </div>
     );
 }

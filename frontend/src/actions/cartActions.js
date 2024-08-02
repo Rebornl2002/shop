@@ -92,13 +92,13 @@ export const getCartData = (token) => {
     };
 };
 
-export const addCart = (token, maSP, quantity) => {
+export const addCart = (token, id, quantity) => {
     return (dispatch) => {
         dispatch(addCartRequest());
         return axios
             .post(
                 'http://localhost:4000/api/data/carts',
-                { maSP, quantity },
+                { id, quantity },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -123,12 +123,12 @@ export const addCart = (token, maSP, quantity) => {
     };
 };
 
-export const updateCartQuantity = (token, maSP, quantity) => {
+export const updateCartQuantity = (token, id, quantity) => {
     return () => {
         return axios
             .put(
                 'http://localhost:4000/api/data/updateCartQuantity',
-                { maSP, quantity },
+                { id, quantity },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`, // Gửi token JWT trong header Authorization
@@ -146,7 +146,7 @@ export const updateCartQuantity = (token, maSP, quantity) => {
     };
 };
 
-export const deleteCart = (token, maSP) => {
+export const deleteCart = (token, id) => {
     return () => {
         return axios
             .delete('http://localhost:4000/api/data/carts', {
@@ -154,7 +154,7 @@ export const deleteCart = (token, maSP) => {
                     Authorization: `Bearer ${token}`, // Gửi token JWT trong header Authorization
                 },
                 data: {
-                    maSP, // Gửi dữ liệu maSP trong phần body của yêu cầu
+                    id, // Gửi dữ liệu id trong phần body của yêu cầu
                 },
             })
             .then((response) => {

@@ -11,6 +11,7 @@ router.get('/carts', cartController.getCartData);
 router.get('/products/search', productController.getSearchProducts);
 router.get('/products/details', productController.getDetailProduct);
 router.get('/detailUser', userController.getDetailUser);
+router.get('/products/discount', productController.getDiscountProducts);
 
 router.post('/users/login', userController.checkUserLogin);
 router.post('/users', userController.createUser);

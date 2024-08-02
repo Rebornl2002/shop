@@ -61,7 +61,7 @@ function Search() {
                 {debouncedValue.trim() && searchData.length > 0 && (
                     <div className={cx('result-container')}>
                         {searchData.map((product, index) => (
-                            <Link to={`${routes.product}/${product.maSP}`} className={cx('result-product')} key={index}>
+                            <Link to={`${routes.product}/${product.id}`} className={cx('result-product')} key={index}>
                                 <div
                                     className={cx('result-img')}
                                     style={{

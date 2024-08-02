@@ -30,7 +30,7 @@ function Discount({ props, title, sale, type }) {
             <div className={cx('wrapper-item')}>
                 {props.map((prop, index) => (
                     <div key={index} className={cx('item')}>
-                        <Link to={`product/${prop.maSP}`}>
+                        <Link to={`product/${prop.id}`}>
                             <div className={cx('container-item')}>
                                 <img src={prop.imgSrc} alt={prop.name} className={cx('item-img')} />
                                 <div className={cx('content-item')}>

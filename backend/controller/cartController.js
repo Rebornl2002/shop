@@ -20,9 +20,9 @@ async function getCartData(req, res) {
 
         // Truy vấn dữ liệu từ bảng cart và lấy thông tin sản phẩm từ bảng products
         const result = await sql.query`
-            SELECT carts.maSP, carts.username, carts.quantity, products.name, products.price, products.imgSrc, products.percentDiscount
+            SELECT carts.id, carts.username, carts.quantity, products.name, products.price, products.imgSrc, products.percentDiscount
             FROM carts
-            JOIN products ON carts.maSP = products.maSP
+            JOIN products ON carts.id = products.id
             WHERE carts.username = ${username}
         `;
 
@@ -43,9 +43,9 @@ async function addToCart(req, res) {
         return res.status(401).json({ message: 'Token không hợp lệ!' });
     }
 
-    const { maSP, quantity } = req.body;
+    const { id, quantity } = req.body;
 
-    if (!maSP || !quantity || quantity <= 0) {
+    if (!id || !quantity || quantity <= 0) {
         return res.status(400).json({ message: 'Dữ liệu không hợp lệ!' });
     }
 
@@ -58,7 +58,7 @@ async function addToCart(req, res) {
         await connectToDatabase();
 
         // Kiểm tra sản phẩm có tồn tại trong bảng products không
-        const productResult = await sql.query`SELECT * FROM products WHERE maSP = ${maSP}`;
+        const productResult = await sql.query`SELECT * FROM products WHERE id = ${id}`;
 
         if (productResult.recordset.length === 0) {
             return res.status(404).json({ message: 'Sản phẩm không tồn tại!' });
@@ -66,7 +66,7 @@ async function addToCart(req, res) {
 
         // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
         const cartCheckResult = await sql.query`
-            SELECT * FROM carts WHERE username = ${username} AND maSP = ${maSP}
+            SELECT * FROM carts WHERE username = ${username} AND id = ${id}
         `;
 
         if (cartCheckResult.recordset.length > 0) {
@@ -75,8 +75,8 @@ async function addToCart(req, res) {
 
         // Thêm sản phẩm vào bảng cart
         const insertResult = await sql.query`
-            INSERT INTO carts (username, maSP, quantity)
-            VALUES (${username}, ${maSP}, ${quantity})
+            INSERT INTO carts (username, id, quantity)
+            VALUES (${username}, ${id}, ${quantity})
         `;
 
         if (insertResult.rowsAffected.length > 0) {
@@ -97,9 +97,9 @@ async function updateCartQuantity(req, res) {
         return res.status(401).json({ message: 'Token không hợp lệ!' });
     }
 
-    const { maSP, quantity } = req.body;
+    const { id, quantity } = req.body;
 
-    if (!maSP || !quantity || quantity <= 0) {
+    if (!id || !quantity || quantity <= 0) {
         return res.status(400).json({ message: 'Dữ liệu không hợp lệ!' });
     }
 
@@ -112,7 +112,7 @@ async function updateCartQuantity(req, res) {
         await connectToDatabase();
 
         // Kiểm tra sản phẩm có tồn tại trong bảng products không
-        const productResult = await sql.query`SELECT * FROM products WHERE maSP = ${maSP}`;
+        const productResult = await sql.query`SELECT * FROM products WHERE id = ${id}`;
 
         if (productResult.recordset.length === 0) {
             return res.status(404).json({ message: 'Sản phẩm không tồn tại!' });
@@ -122,7 +122,7 @@ async function updateCartQuantity(req, res) {
         const updateResult = await sql.query`
             UPDATE carts
             SET quantity = ${quantity}
-            WHERE username = ${username} AND maSP = ${maSP}
+            WHERE username = ${username} AND id = ${id}
         `;
 
         if (updateResult.rowsAffected.length > 0) {
@@ -143,9 +143,9 @@ async function deleteCart(req, res) {
         return res.status(401).json({ message: 'Không có token!' });
     }
 
-    const { maSP } = req.body; // Giả sử maSP có thể là một chuỗi hoặc một mảng
+    const { id } = req.body; // Giả sử id có thể là một chuỗi hoặc một mảng
 
-    if (!maSP || (typeof maSP !== 'string' && !Array.isArray(maSP))) {
+    if (!id || (typeof id !== 'string' && !Array.isArray(id))) {
         return res.status(400).json({ message: 'Dữ liệu không hợp lệ!' });
     }
 
@@ -158,31 +158,31 @@ async function deleteCart(req, res) {
         await connectToDatabase();
 
         // Hàm để kiểm tra sự tồn tại của sản phẩm
-        async function productExists(maSP) {
-            const productResult = await sql.query`SELECT * FROM products WHERE maSP = ${maSP}`;
+        async function productExists(id) {
+            const productResult = await sql.query`SELECT * FROM products WHERE id = ${id}`;
             return productResult.recordset.length > 0;
         }
 
         // Hàm để xóa sản phẩm khỏi giỏ hàng
-        async function deleteProduct(maSP) {
+        async function deleteProduct(id) {
             await sql.query`
-                DELETE FROM carts WHERE username = ${username} AND maSP = ${maSP}
+                DELETE FROM carts WHERE username = ${username} AND id = ${id}
             `;
         }
 
         // Kiểm tra và xóa sản phẩm
-        if (typeof maSP === 'string') {
-            if (!(await productExists(maSP))) {
-                return res.status(404).json({ message: `Sản phẩm với mã ${maSP} không tồn tại!` });
+        if (typeof id === 'string') {
+            if (!(await productExists(id))) {
+                return res.status(404).json({ message: `Sản phẩm với mã ${id} không tồn tại!` });
             }
-            await deleteProduct(maSP);
-        } else if (Array.isArray(maSP)) {
-            for (const sp of maSP) {
+            await deleteProduct(id);
+        } else if (Array.isArray(id)) {
+            for (const sp of id) {
                 if (!(await productExists(sp))) {
                     return res.status(404).json({ message: `Sản phẩm với mã ${sp} không tồn tại!` });
                 }
             }
-            for (const sp of maSP) {
+            for (const sp of id) {
                 await deleteProduct(sp);
             }
         }

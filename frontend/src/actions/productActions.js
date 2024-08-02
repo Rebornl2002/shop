@@ -8,6 +8,7 @@ export const FETCH_PRODUCTS_FAILURE = 'FETCH_PRODUCTS_FAILURE';
 export const SEARCH_PRODUCTS = 'SEARCH_PRODUCTS';
 export const SELECT_PRODUCT = 'SELECT_PRODUCT';
 export const DETAIL_PRODUCT = 'DETAIL_PRODUCT';
+export const DISCOUNT_PRODUCT = 'DISCOUNT_PRODUCT';
 
 // Action creators
 export const fetchProductsRequest = () => {
@@ -44,10 +45,17 @@ export const detailProduct = (product) => {
     };
 };
 
-export const searchProducts = (products) => {
+export const searchProducts = (product) => {
     return {
         type: SEARCH_PRODUCTS,
-        payload: products,
+        payload: product,
+    };
+};
+
+export const discountProduct = (product) => {
+    return {
+        type: DISCOUNT_PRODUCT,
+        payload: product,
     };
 };
 
@@ -69,6 +77,28 @@ export const fetchProducts = () => {
             .catch((error) => {
                 const errorMsg = error.message;
                 dispatch(fetchProductsFailure(errorMsg));
+            });
+    };
+};
+
+export const fetchDiscountProducts = () => {
+    return (dispatch) => {
+        axios
+            .get('http://localhost:4000/api/data/products/discount')
+            .then((response) => {
+                const products = response.data;
+                if (Array.isArray(products)) {
+                    // Kiểm tra dữ liệu trả về có phải là mảng không
+                    dispatch(discountProduct(products));
+                } else {
+                    dispatch(fetchProductsFailure('Invalid data format')); // Xử lý dữ liệu không hợp lệ
+                }
+                return Promise.resolve();
+            })
+            .catch((error) => {
+                const errorMsg = error.message;
+                dispatch(fetchProductsFailure(errorMsg));
+                return Promise.reject();
             });
     };
 };

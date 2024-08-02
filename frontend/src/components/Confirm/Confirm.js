@@ -12,10 +12,10 @@ function Confirm({ title, data, onClose, onAction }) {
 
     const handleChangeId = (data) => {
         if (Array.isArray(data)) {
-            const maSPArray = data.map((product) => product.maSP);
-            return maSPArray;
+            const idArray = data.map((product) => product.id);
+            return idArray;
         } else {
-            return data.maSP;
+            return data.id;
         }
     };
 

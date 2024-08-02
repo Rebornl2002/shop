@@ -6,12 +6,13 @@ import Blog from './Blog';
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchBlogs } from '@/actions/blogActions';
-import { fetchProducts, selectProduct } from '@/actions/productActions';
+import { fetchDiscountProducts, fetchProducts, selectProduct } from '@/actions/productActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { addCart, getCartData } from '@/actions/cartActions';
 import { Toast } from '@/components/Toast/Toast';
 import { handleCalculatePrice } from '@/calculate/calculate';
+import Cookies from 'js-cookie';
 
 const cx = classNames.bind(styles);
 
@@ -24,6 +25,7 @@ function Home() {
     const products = useSelector((state) => state.product.products);
     const loadingProduct = useSelector((state) => state.product.loading);
     const errorProduct = useSelector((state) => state.product.error);
+    const discountProducts = useSelector((state) => state.product.discountProducts);
 
     const selectedProduct = useSelector((state) => state.product.selectedProduct);
     const [quantity, setQuantity] = useState(0);
@@ -35,6 +37,7 @@ function Home() {
     useEffect(() => {
         dispatch(fetchBlogs());
         dispatch(fetchProducts());
+        dispatch(fetchDiscountProducts());
     }, [dispatch]);
 
     const handleAddQuantity = () => {
@@ -56,7 +59,7 @@ function Home() {
             if (!isLogin) {
                 Toast.error('Vui lòng đăng nhập để thêm sản phẩm ');
             } else {
-                dispatch(addCart(userCurrent, selectedProduct.maSP, quantity))
+                dispatch(addCart(userCurrent, selectedProduct.id, quantity))
                     .then(() => {
                         return dispatch(getCartData(userCurrent));
                     })
@@ -82,8 +85,8 @@ function Home() {
     return (
         <div className={cx('wrapper')}>
             <Slide />
-            {!loadingProduct && !errorProduct && products.length > 0 && (
-                <Sell props={products} title="Đang khuyến mãi" sale={true} type={false} />
+            {!loadingProduct && !errorProduct && discountProducts.length > 0 && (
+                <Sell props={discountProducts} title="Đang khuyến mãi" sale={true} type={false} />
             )}
             {!loadingProduct && !errorProduct && products.length > 0 && (
                 <Sell props={products} title="Hàng mới về " type={true} sale={false} />
