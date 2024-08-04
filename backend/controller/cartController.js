@@ -4,8 +4,7 @@ const jwt = require('jsonwebtoken');
 const { secretKey } = require('../config'); // Sử dụng secretKey từ config.js
 
 async function getCartData(req, res) {
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1]; // Lấy token từ header Authorization
-
+    const token = req.cookies.authToken;
     if (!token) {
         return res.status(401).json({ message: 'Token không hợp lệ!' });
     }
@@ -37,8 +36,7 @@ async function getCartData(req, res) {
 }
 
 async function addToCart(req, res) {
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1]; // Lấy token từ header Authorization
-
+    const token = req.cookies.authToken;
     if (!token) {
         return res.status(401).json({ message: 'Token không hợp lệ!' });
     }
@@ -91,8 +89,7 @@ async function addToCart(req, res) {
 }
 
 async function updateCartQuantity(req, res) {
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1]; // Lấy token từ header Authorization
-
+    const token = req.cookies.authToken;
     if (!token) {
         return res.status(401).json({ message: 'Token không hợp lệ!' });
     }
@@ -137,7 +134,7 @@ async function updateCartQuantity(req, res) {
 }
 
 async function deleteCart(req, res) {
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+    const token = req.cookies.authToken;
 
     if (!token) {
         return res.status(401).json({ message: 'Không có token!' });
@@ -145,7 +142,7 @@ async function deleteCart(req, res) {
 
     const { id } = req.body; // Giả sử id có thể là một chuỗi hoặc một mảng
 
-    if (!id || (typeof id !== 'string' && !Array.isArray(id))) {
+    if (!id || (typeof id !== 'number' && !Array.isArray(id))) {
         return res.status(400).json({ message: 'Dữ liệu không hợp lệ!' });
     }
 
@@ -171,7 +168,7 @@ async function deleteCart(req, res) {
         }
 
         // Kiểm tra và xóa sản phẩm
-        if (typeof id === 'string') {
+        if (typeof id === 'number') {
             if (!(await productExists(id))) {
                 return res.status(404).json({ message: `Sản phẩm với mã ${id} không tồn tại!` });
             }

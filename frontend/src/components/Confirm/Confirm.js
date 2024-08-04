@@ -2,13 +2,11 @@ import classNames from 'classnames/bind';
 import styles from './Confirm.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { useSelector } from 'react-redux';
 
 const cx = classNames.bind(styles);
 
 function Confirm({ title, data, onClose, onAction }) {
     const notificationTitle = title || 'Bạn có chắc chắn muốn xóa sản phẩm này không ?';
-    const userCurrent = useSelector((state) => state.user.currentUser);
 
     const handleChangeId = (data) => {
         if (Array.isArray(data)) {
@@ -25,7 +23,7 @@ function Confirm({ title, data, onClose, onAction }) {
                 <div className={cx('container')}>
                     <div className={cx('notification')}>{notificationTitle}</div>
                     <div className={cx('confirm')}>
-                        <div className={cx('cofirm-btn')} onClick={() => onAction(userCurrent, handleChangeId(data))}>
+                        <div className={cx('cofirm-btn')} onClick={() => onAction(handleChangeId(data))}>
                             Có
                         </div>
                         <div className={cx('cofirm-btn')} onClick={onClose}>

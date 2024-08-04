@@ -12,7 +12,6 @@ import { faMinus, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { addCart, getCartData } from '@/actions/cartActions';
 import { Toast } from '@/components/Toast/Toast';
 import { handleCalculatePrice } from '@/calculate/calculate';
-import Cookies from 'js-cookie';
 
 const cx = classNames.bind(styles);
 
@@ -31,7 +30,6 @@ function Home() {
     const [quantity, setQuantity] = useState(0);
     const [showProduct, setShowProduct] = useState(false);
 
-    const userCurrent = useSelector((state) => state.user.currentUser);
     const isLogin = useSelector((state) => state.user.isLoggedIn);
 
     useEffect(() => {
@@ -59,9 +57,10 @@ function Home() {
             if (!isLogin) {
                 Toast.error('Vui lòng đăng nhập để thêm sản phẩm ');
             } else {
-                dispatch(addCart(userCurrent, selectedProduct.id, quantity))
+                console.log(selectedProduct.id, quantity);
+                dispatch(addCart(selectedProduct.id, quantity))
                     .then(() => {
-                        return dispatch(getCartData(userCurrent));
+                        return dispatch(getCartData());
                     })
                     .catch((error) => {
                         console.error('Eror', error);

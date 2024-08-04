@@ -10,7 +10,6 @@ const cx = classNames.bind(styles);
 
 function Profile() {
     const dispatch = useDispatch();
-    const userCurrent = useSelector((state) => state.user.currentUser);
     const detailUser = useSelector((state) => state.user.detail);
 
     const [formData, setFormData] = useState({
@@ -23,17 +22,15 @@ function Profile() {
     });
 
     useEffect(() => {
-        if (userCurrent) {
-            dispatch(fetchDetailUser(userCurrent));
-        }
-    }, [dispatch, userCurrent]);
+        dispatch(fetchDetailUser());
+    }, [dispatch]);
 
     useEffect(() => {
         if (detailUser && detailUser.length > 0) {
             setFormData({
                 fullName: detailUser[0].fullName || '',
                 email: detailUser[0].email || '',
-                phone: '0' + detailUser[0].phone || '',
+                phone: detailUser[0].phone !== null ? '0' + detailUser[0].phone : '',
                 sex: detailUser[0].sex !== null ? detailUser[0].sex : null,
                 date: formatDateString(detailUser[0].date) || '',
                 address: detailUser[0].address || '',
@@ -57,7 +54,7 @@ function Profile() {
         ) {
             Toast.error('Vui lòng kiểm tra lại thông tin !');
         } else {
-            dispatch(fetchUpdateDetailUser(formData, userCurrent));
+            dispatch(fetchUpdateDetailUser(formData));
         }
     };
 

@@ -21,14 +21,13 @@ function Product() {
 
     const isLogin = useSelector((state) => state.user.isLoggedIn);
     const detailUser = useSelector((state) => state.user.detail);
-    const userCurrent = useSelector((state) => state.user.currentUser);
     const [address, setAddress] = useState('');
 
     useEffect(() => {
-        if (userCurrent) {
-            dispatch(fetchDetailUser(userCurrent));
+        if (isLogin) {
+            dispatch(fetchDetailUser());
         }
-    }, [dispatch, userCurrent]);
+    }, [dispatch, isLogin]);
 
     useEffect(() => {
         if (detailUser.length > 0) {
@@ -58,9 +57,9 @@ function Product() {
             if (!isLogin) {
                 Toast.error('Vui lòng đăng nhập để thêm sản phẩm ');
             } else {
-                dispatch(addCart(userCurrent, id, quantity))
+                dispatch(addCart(id, quantity))
                     .then(() => {
-                        return dispatch(getCartData(userCurrent));
+                        return dispatch(getCartData());
                     })
                     .catch((error) => {
                         console.error('Eror', error);

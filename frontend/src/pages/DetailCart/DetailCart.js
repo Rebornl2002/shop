@@ -12,7 +12,6 @@ const cx = classNames.bind(styles);
 
 function DetailCart() {
     const data = useSelector((state) => state.cart.carts);
-    const userCurrent = useSelector((state) => state.user.currentUser);
     const dispatch = useDispatch();
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
@@ -22,9 +21,9 @@ function DetailCart() {
 
     const handleUpdateQuantity = (id, quantity) => {
         if (quantity !== 0) {
-            dispatch(updateCartQuantity(userCurrent, id, quantity))
+            dispatch(updateCartQuantity(id, quantity))
                 .then(() => {
-                    return dispatch(getCartData(userCurrent));
+                    return dispatch(getCartData());
                 })
                 .catch((err) => {
                     console.error(err);
@@ -75,10 +74,10 @@ function DetailCart() {
         setProductDelete(product);
     };
 
-    const handleDeleteCart = (token, id) => {
-        dispatch(deleteCart(token, id))
+    const handleDeleteCart = (id) => {
+        dispatch(deleteCart(id))
             .then(() => {
-                return dispatch(getCartData(userCurrent));
+                return dispatch(getCartData());
             })
             .catch((err) => {
                 console.error(err);

@@ -12,7 +12,7 @@ import styles from './Header.module.scss';
 import images from '@/assets/images';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '@/actions/userActions';
+import { checkStatus, fetchLogout } from '@/actions/userActions';
 import Menu from '@/components/Popper/Menu';
 import Cart from '../Cart';
 import { getCartData } from '@/actions/cartActions';
@@ -23,19 +23,22 @@ function Header() {
     const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
     const [isLoginForm, setIsLoginForm] = useState(true);
     const [authentication, setAuthentication] = useState(false);
-    const userCurrent = useSelector((state) => state.user.currentUser);
     const data = useSelector((state) => state.cart.carts);
 
     const dispatch = useDispatch();
 
     useEffect(() => {
+        dispatch(checkStatus());
+    }, [dispatch]);
+
+    useEffect(() => {
         if (isLoggedIn) {
-            dispatch(getCartData(userCurrent));
+            dispatch(getCartData());
         }
     }, [isLoggedIn]);
 
     const handleLogout = () => {
-        dispatch(logout());
+        dispatch(fetchLogout());
     };
 
     const handleChangeLoginForm = () => {

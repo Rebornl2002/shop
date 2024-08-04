@@ -12,10 +12,12 @@ router.get('/products/search', productController.getSearchProducts);
 router.get('/products/details', productController.getDetailProduct);
 router.get('/detailUser', userController.getDetailUser);
 router.get('/products/discount', productController.getDiscountProducts);
+router.get('/status', userController.status);
 
 router.post('/users/login', userController.checkUserLogin);
 router.post('/users', userController.createUser);
 router.post('/carts', cartController.addToCart);
+router.post('/logout', userController.logout);
 
 router.put('/updateDetailUser', userController.updateDetailUser);
 router.put('/updateCartQuantity', cartController.updateCartQuantity);

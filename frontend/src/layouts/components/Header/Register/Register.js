@@ -6,7 +6,7 @@ import { faLock, faUser, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useRef } from 'react';
 import { Toast } from '@/components/Toast/Toast';
 import { useDispatch } from 'react-redux';
-import { creatUser } from '@/actions/userActions';
+import { createUser } from '@/actions/userActions';
 
 const cx = classNames.bind(styles);
 
@@ -24,7 +24,7 @@ function Register({ onChange, onClose }) {
         if (password !== cofirmPassword) {
             Toast.error('Mật khẩu và mật khẩu nhập lại không giống nhau !');
         } else {
-            dispatch(creatUser(username, password));
+            dispatch(createUser(username, password));
         }
     };
 

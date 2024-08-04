@@ -1,4 +1,3 @@
-// reducers/userReducer.js
 import {
     FETCH_USERS_REQUEST,
     FETCH_USERS_SUCCESS,
@@ -6,7 +5,7 @@ import {
     SET_LOGIN_MESSAGE,
     LOGIN_SUCCESS,
     LOGOUT,
-    SET_CURRENT_USER,
+    SET_ROLE,
     DETAIL_USER,
 } from '../actions/userActions';
 
@@ -16,8 +15,8 @@ const initialState = {
     detail: [],
     error: '',
     loginMessage: '',
-    isLoggedIn: localStorage.getItem('isLoggedIn') === 'true', // Kiểm tra trạng thái đăng nhập từ localStorage
-    currentUser: JSON.parse(localStorage.getItem('currentUser')),
+    isLoggedIn: false, // Khởi tạo isLoggedIn là false
+    role: '',
 };
 
 const userReducer = (state = initialState, action) => {
@@ -58,12 +57,12 @@ const userReducer = (state = initialState, action) => {
                 users: [],
                 error: '',
                 loginMessage: '',
-                currentUser: null,
+                role: '',
             };
-        case SET_CURRENT_USER:
+        case SET_ROLE:
             return {
                 ...state,
-                currentUser: action.payload,
+                role: action.payload,
             };
         case DETAIL_USER:
             return {

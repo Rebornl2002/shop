@@ -58,19 +58,16 @@ export const addCartFailure = (error) => {
     };
 };
 
-// Async action creator using thunk
-export const getCartData = (token) => {
+export const getCartData = () => {
     return (dispatch) => {
         dispatch(fetchCartsRequest());
         return axios
-            .get(`http://localhost:4000/api/data/carts`, {
-                headers: {
-                    Authorization: `Bearer ${token}`, // Gửi token JWT trong header Authorization
-                },
+            .get('http://localhost:4000/api/data/carts', {
+                withCredentials: true, // Cho phép axios gửi cookies cùng với request
             })
             .then((response) => {
                 const message = response.data.message;
-                const data = response.data.cartData; // Giả sử dữ liệu giỏ hàng nằm trong response.data.carts
+                const data = response.data.cartData; // Giả sử dữ liệu giỏ hàng nằm trong response.data.cartData
                 if (Array.isArray(data)) {
                     dispatch(fetchCartsSuccess(data));
                     dispatch(setMessage(message));
@@ -92,7 +89,7 @@ export const getCartData = (token) => {
     };
 };
 
-export const addCart = (token, id, quantity) => {
+export const addCart = (id, quantity) => {
     return (dispatch) => {
         dispatch(addCartRequest());
         return axios
@@ -100,9 +97,7 @@ export const addCart = (token, id, quantity) => {
                 'http://localhost:4000/api/data/carts',
                 { id, quantity },
                 {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    withCredentials: true, // Cho phép axios gửi cookies cùng với request
                 },
             )
             .then((response) => {
@@ -123,16 +118,14 @@ export const addCart = (token, id, quantity) => {
     };
 };
 
-export const updateCartQuantity = (token, id, quantity) => {
+export const updateCartQuantity = (id, quantity) => {
     return () => {
         return axios
             .put(
                 'http://localhost:4000/api/data/updateCartQuantity',
                 { id, quantity },
                 {
-                    headers: {
-                        Authorization: `Bearer ${token}`, // Gửi token JWT trong header Authorization
-                    },
+                    withCredentials: true, // Cho phép axios gửi cookies cùng với request
                 },
             )
             .then((response) => {
@@ -146,23 +139,22 @@ export const updateCartQuantity = (token, id, quantity) => {
     };
 };
 
-export const deleteCart = (token, id) => {
+export const deleteCart = (id) => {
     return () => {
         return axios
             .delete('http://localhost:4000/api/data/carts', {
-                headers: {
-                    Authorization: `Bearer ${token}`, // Gửi token JWT trong header Authorization
-                },
+                withCredentials: true, // Cho phép axios gửi cookies cùng với request
                 data: {
                     id, // Gửi dữ liệu id trong phần body của yêu cầu
                 },
             })
             .then((response) => {
-                Toast.success(response);
+                Toast.success(response.data.message);
                 return Promise.resolve();
             })
             .catch((error) => {
-                Toast.error(error);
+                const errorMsg = error.response?.data?.message || error.message;
+                Toast.error(errorMsg);
                 return Promise.reject();
             });
     };

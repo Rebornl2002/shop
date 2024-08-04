@@ -3,6 +3,7 @@ const { connectToDatabase } = require('./database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { secretKey } = require('../config'); // Sử dụng secretKey từ config.js
+const { patch } = require('../routers/dataRouter');
 
 async function createUser(req, res) {
     try {
@@ -74,8 +75,17 @@ async function checkUserLogin(req, res) {
                 // Tạo token JWT với payload chứa thông tin username và vai trò
                 const token = jwt.sign({ username: user.username, role: user.role }, secretKey, { expiresIn: '1h' });
 
-                // Gửi về token và thông tin vai trò trong phản hồi
-                return res.status(200).json({ message: 'Đăng nhập thành công!', token, role: user.role });
+                // Thiết lập cookie với token
+                res.cookie('authToken', token, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production', // Chỉ bật secure khi ở môi trường sản xuất
+                    sameSite: 'Strict',
+                    maxAge: 3600000, // 1 giờ
+                    path: '/',
+                });
+
+                // Gửi về thông tin vai trò trong phản hồi
+                return res.status(200).json({ message: 'Đăng nhập thành công!', role: user.role });
             } else {
                 return res.status(401).json({ message: 'Tài khoản hoặc mật khẩu không chính xác!' });
             }
@@ -88,8 +98,33 @@ async function checkUserLogin(req, res) {
     }
 }
 
+// Hàm đăng xuất
+async function logout(req, res) {
+    res.clearCookie('authToken', {
+        path: '/',
+        secure: process.env.NODE_ENV === 'production', // Đảm bảo cookie được xóa với cùng cấu hình secure
+        sameSite: 'Strict', // Đảm bảo sameSite khớp với khi thiết lập cookie
+    });
+    res.status(200).send({ message: 'Logged out' });
+}
+
+// Hàm kiểm tra trạng thái đăng nhập
+async function status(req, res) {
+    const authToken = req.cookies.authToken;
+    if (authToken) {
+        try {
+            jwt.verify(authToken, secretKey);
+            res.status(200).send({ loggedIn: true });
+        } catch (err) {
+            res.status(200).send({ loggedIn: false, message: 'hang 1' });
+        }
+    } else {
+        res.status(200).send({ loggedIn: false, message: 'HANG 2' });
+    }
+}
+
 async function getDetailUser(req, res) {
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1]; // Lấy token từ header Authorization
+    const token = req.cookies.authToken; // Lấy token từ cookies
 
     if (!token) {
         return res.status(401).json({ message: 'Token không hợp lệ!' });
@@ -116,7 +151,7 @@ async function getDetailUser(req, res) {
 }
 
 async function updateDetailUser(req, res) {
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1]; // Lấy token từ header Authorization
+    const token = req.cookies.authToken; // Lấy token từ cookies
 
     if (!token) {
         return res.status(401).json({ message: 'Token không hợp lệ!' });
@@ -170,4 +205,6 @@ module.exports = {
     checkUserLogin,
     getDetailUser,
     updateDetailUser,
+    logout,
+    status,
 };
