@@ -1,17 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Cookies from 'js-cookie';
 
 const useAuth = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [role] = useState(Cookies.get('role') || null);
 
-    useEffect(() => {
-        const authCookie = Cookies.get('authToken'); // Giả sử bạn lưu trữ token đăng nhập trong cookie
-        if (authCookie) {
-            setIsAuthenticated(true);
-        }
-    }, []);
-
-    return { isAuthenticated };
+    return { role };
 };
 
 export default useAuth;

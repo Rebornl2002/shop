@@ -1,14 +1,15 @@
 import config from '@/config';
 
-//Page
+// Page components
 import Home from '@/pages/Home';
 import Profile from '@/pages/Profile';
 import Product from '@/pages/Product';
 import DetailCart from '@/pages/DetailCart';
+import Admin from '@/pages/Admin';
 
 const publicRoutes = [
     { path: config.routes.home, component: Home },
-    { path: config.routes.product + '/:id', component: Product },
+    { path: `${config.routes.product}/:id`, component: Product },
 ];
 
 const privateRoutes = [
@@ -16,4 +17,6 @@ const privateRoutes = [
     { path: config.routes.detailCart, component: DetailCart },
 ];
 
-export { publicRoutes, privateRoutes };
+const adminRoutes = [{ path: config.routes.admin, component: Admin }];
+
+export { publicRoutes, privateRoutes, adminRoutes };

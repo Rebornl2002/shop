@@ -1,12 +1,12 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import config from '@/config';
-import { useAuth } from '@/hook';
+import Cookies from 'js-cookie';
 
 const PrivateRoute = ({ element: Element, ...rest }) => {
-    const isAuthenticated = useAuth();
+    const isAuthenticated = Cookies.get('role');
 
-    return isAuthenticated ? Element : <Navigate to={config.routes.home} />;
+    return isAuthenticated && isAuthenticated === 'user' ? Element : <Navigate to={config.routes.home} />;
 };
 
 export default PrivateRoute;

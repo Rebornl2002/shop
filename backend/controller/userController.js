@@ -73,7 +73,7 @@ async function checkUserLogin(req, res) {
             const match = await bcrypt.compare(password, user.password);
             if (match) {
                 // Tạo token JWT với payload chứa thông tin username và vai trò
-                const token = jwt.sign({ username: user.username, role: user.role }, secretKey, { expiresIn: '1h' });
+                const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
 
                 // Thiết lập cookie với token
                 res.cookie('authToken', token, {
@@ -84,8 +84,16 @@ async function checkUserLogin(req, res) {
                     path: '/',
                 });
 
+                res.cookie('role', user.role, {
+                    httpOnly: false, // Cookie này có thể được truy cập từ JavaScript
+                    secure: process.env.NODE_ENV === 'production', // Chỉ bật secure khi ở môi trường sản xuất
+                    sameSite: 'Strict',
+                    maxAge: 3600000, // 1 giờ
+                    path: '/',
+                });
+
                 // Gửi về thông tin vai trò trong phản hồi
-                return res.status(200).json({ message: 'Đăng nhập thành công!', role: user.role });
+                return res.status(200).json({ message: 'Đăng nhập thành công!' });
             } else {
                 return res.status(401).json({ message: 'Tài khoản hoặc mật khẩu không chính xác!' });
             }
@@ -105,6 +113,11 @@ async function logout(req, res) {
         secure: process.env.NODE_ENV === 'production', // Đảm bảo cookie được xóa với cùng cấu hình secure
         sameSite: 'Strict', // Đảm bảo sameSite khớp với khi thiết lập cookie
     });
+    res.clearCookie('role', {
+        path: '/',
+        secure: process.env.NODE_ENV === 'production', // Đảm bảo cookie được xóa với cùng cấu hình secure
+        sameSite: 'Strict', // Đảm bảo sameSite khớp với khi thiết lập cookie
+    });
     res.status(200).send({ message: 'Logged out' });
 }
 
@@ -116,10 +129,10 @@ async function status(req, res) {
             jwt.verify(authToken, secretKey);
             res.status(200).send({ loggedIn: true });
         } catch (err) {
-            res.status(200).send({ loggedIn: false, message: 'hang 1' });
+            res.status(200).send({ loggedIn: false });
         }
     } else {
-        res.status(200).send({ loggedIn: false, message: 'HANG 2' });
+        res.status(200).send({ loggedIn: false });
     }
 }
 
