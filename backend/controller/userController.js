@@ -73,7 +73,7 @@ async function checkUserLogin(req, res) {
             const match = await bcrypt.compare(password, user.password);
             if (match) {
                 // Tạo token JWT với payload chứa thông tin username và vai trò
-                const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
+                const token = jwt.sign({ username: user.username, role: user.role }, secretKey, { expiresIn: '1h' });
 
                 // Thiết lập cookie với token
                 res.cookie('authToken', token, {

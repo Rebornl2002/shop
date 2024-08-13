@@ -7,6 +7,7 @@ import {
     SEARCH_PRODUCTS,
     DETAIL_PRODUCT,
     DISCOUNT_PRODUCT,
+    ALL_DETAIL_PRODUCTS,
 } from '../actions/productActions.js';
 
 const initialState = {
@@ -15,6 +16,7 @@ const initialState = {
     discountProducts: [],
     searchs: [],
     details: [],
+    allDetails: [],
     error: '',
 };
 
@@ -58,6 +60,11 @@ const productReducer = (state = initialState, action) => {
             return {
                 ...state,
                 discountProducts: action.payload,
+            };
+        case ALL_DETAIL_PRODUCTS:
+            return {
+                ...state,
+                allDetails: action.payload,
             };
         default:
             return state;

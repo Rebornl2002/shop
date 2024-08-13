@@ -24,9 +24,17 @@ async function getCartData(req, res) {
             JOIN products ON carts.id = products.id
             WHERE carts.username = ${username}
         `;
+        const products = result.recordset.map((product) => {
+            // Chuyển đổi dữ liệu `imgSrc` thành base64
+            const base64ImgSrc = product.imgSrc ? product.imgSrc.toString('base64') : null;
+            return {
+                ...product,
+                imgSrc: base64ImgSrc ? `data:image/png;base64,${base64ImgSrc}` : null,
+            };
+        });
 
         // Trả về dữ liệu từ bảng cart và thông tin sản phẩm trong phản hồi
-        return res.status(200).json({ cartData: result.recordset });
+        return res.status(200).json(products);
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
             return res.status(401).json({ message: 'Phiên đăng nhập đã hết hạn !' });

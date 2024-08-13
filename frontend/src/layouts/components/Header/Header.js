@@ -1,14 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import classNames from 'classnames/bind';
+import styles from './Header.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRightToBracket, faUserPlus, faEllipsisVertical, faUser, faSignOut } from '@fortawesome/free-solid-svg-icons';
+import {
+    faRightToBracket,
+    faUserPlus,
+    faEllipsisVertical,
+    faUser,
+    faSignOut,
+    faKey,
+} from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import config from '@/config';
 import Login from './Login';
 import Register from './Register';
 import Search from '@/layouts/components/Search';
 import ListMenu from './ListMenu';
-import styles from './Header.module.scss';
 import images from '@/assets/images';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,6 +24,8 @@ import Menu from '@/components/Popper/Menu';
 import Cart from '../Cart';
 import { getCartData } from '@/actions/cartActions';
 
+import Cookies from 'js-cookie';
+
 const cx = classNames.bind(styles);
 
 function Header() {
@@ -24,6 +33,7 @@ function Header() {
     const [isLoginForm, setIsLoginForm] = useState(true);
     const [authentication, setAuthentication] = useState(false);
     const data = useSelector((state) => state.cart.carts);
+    const userRole = Cookies.get('role');
 
     const dispatch = useDispatch();
 
@@ -69,6 +79,15 @@ function Header() {
             title: 'Hồ sơ',
             to: '/profile',
         },
+        ...(userRole === 'admin'
+            ? [
+                  {
+                      icon: <FontAwesomeIcon icon={faKey} />,
+                      title: 'Admin',
+                      to: '/admin',
+                  },
+              ]
+            : []), // Chỉ thêm mục Admin nếu role là admin
         {
             icon: <FontAwesomeIcon icon={faSignOut} />,
             title: 'Đăng xuất',

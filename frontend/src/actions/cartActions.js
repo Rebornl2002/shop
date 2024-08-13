@@ -67,7 +67,7 @@ export const getCartData = () => {
             })
             .then((response) => {
                 const message = response.data.message;
-                const data = response.data.cartData; // Giả sử dữ liệu giỏ hàng nằm trong response.data.cartData
+                const data = response.data;
                 if (Array.isArray(data)) {
                     dispatch(fetchCartsSuccess(data));
                     dispatch(setMessage(message));
@@ -84,7 +84,6 @@ export const getCartData = () => {
                 dispatch(fetchCartsFailure(errorMsg));
                 dispatch(setMessage(errorMsg));
                 Toast.error(errorMsg);
-                return Promise.reject();
             });
     };
 };
@@ -113,7 +112,7 @@ export const addCart = (id, quantity) => {
                 dispatch(addCartFailure(errorMsg));
                 dispatch(setMessage(errorMsg));
                 Toast.error(errorMsg);
-                return Promise.reject(); // Trả về Promise.reject() để cho biết có lỗi xảy ra
+                // Trả về Promise.reject() để cho biết có lỗi xảy ra
             });
     };
 };
@@ -134,7 +133,6 @@ export const updateCartQuantity = (id, quantity) => {
             })
             .catch((error) => {
                 Toast.error(error);
-                return Promise.reject();
             });
     };
 };
@@ -155,7 +153,6 @@ export const deleteCart = (id) => {
             .catch((error) => {
                 const errorMsg = error.response?.data?.message || error.message;
                 Toast.error(errorMsg);
-                return Promise.reject();
             });
     };
 };

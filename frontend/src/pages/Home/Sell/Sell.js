@@ -6,7 +6,7 @@ import Title from '../Title';
 import sale1 from '@/assets/images/sale1.jpg';
 import sale2 from '@/assets/images/sale2.jpg';
 import { useDispatch } from 'react-redux';
-import { getProduct, selectProduct } from '@/actions/productActions';
+import { selectProduct } from '@/actions/productActions';
 import { Link } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
