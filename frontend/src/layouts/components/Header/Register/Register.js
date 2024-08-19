@@ -24,7 +24,7 @@ function Register({ onChange, onClose }) {
         if (password !== cofirmPassword) {
             Toast.error('Mật khẩu và mật khẩu nhập lại không giống nhau !');
         } else {
-            dispatch(createUser(username, password));
+            dispatch(createUser({ username, password }));
         }
     };
 

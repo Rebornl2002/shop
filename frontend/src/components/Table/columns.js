@@ -1,7 +1,7 @@
 import React from 'react';
 import ImageCell from './ImageCell';
 import { Button } from '@mui/material';
-import { formattedPrice } from '@/calculate/calculate';
+import { formattedPrice, formatDateString } from '@/calculate/calculate';
 
 export const productColumns = (handleEdit, handleDelete) => [
     {
@@ -46,5 +46,54 @@ export const productColumns = (handleEdit, handleDelete) => [
                 Xóa
             </Button>
         ),
+    },
+];
+
+export const userColumns = (toggleStatus) => [
+    { field: 'username', headerName: 'Tên ĐN', flex: 1 },
+    { field: 'fullName', headerName: 'Họ và tên', flex: 1 },
+    { field: 'address', headerName: 'Địa chỉ', flex: 2 },
+    { field: 'email', headerName: 'Email', flex: 2 },
+    {
+        field: 'phone',
+        headerName: 'SĐT',
+        flex: 1,
+        renderCell: (params) => {
+            return <div>{params.value !== null ? '0' + params.value : ''}</div>;
+        },
+    },
+    {
+        field: 'sex',
+        headerName: 'Giới tính',
+        flex: 1,
+        renderCell: (params) => {
+            return <div>{params.value === true ? 'nam' : params.value === false ? 'nữ' : 'khác'}</div>;
+        },
+    },
+    {
+        field: 'date',
+        headerName: 'Ngày sinh',
+        flex: 1,
+        renderCell: (params) => {
+            return <div>{formatDateString(params.value)}</div>;
+        },
+    },
+    {
+        field: 'status',
+        headerName: 'Trạng thái',
+        flex: 1,
+        renderCell: (params) => {
+            const isActive = params.value === 'active';
+            return (
+                <Button
+                    onClick={() => toggleStatus(params.id)}
+                    color={isActive ? 'secondary' : 'primary'}
+                    variant="outlined"
+                    size="small"
+                >
+                    {isActive ? 'Vô hiệu' : 'Kích hoạt'}
+                </Button>
+            );
+        },
     },
 ];

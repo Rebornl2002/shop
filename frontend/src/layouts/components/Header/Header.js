@@ -79,7 +79,7 @@ function Header() {
             title: 'Hồ sơ',
             to: '/profile',
         },
-        ...(userRole === 'admin'
+        ...(userRole === 'admin' || userRole === 'superAdmin'
             ? [
                   {
                       icon: <FontAwesomeIcon icon={faKey} />,

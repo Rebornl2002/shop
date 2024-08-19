@@ -136,11 +136,11 @@ async function getAllDetailProducts(req, res) {
         const decoded = jwt.verify(token, secretKey);
         const role = decoded.role;
 
-        if (role === 'admin') {
+        if (role === 'admin' || role === 'superAdmin') {
             // Kết nối đến cơ sở dữ liệu
             await connectToDatabase();
 
-            // Truy vấn dữ liệu từ bảng products và detailProducts với alias và ký tự đại diện
+            // Truy vấn dữ liệu từ bảng products và detailProducts với alias và ký tự đại diệnP
             const result = await sql.query`
                 SELECT 
                     p.*, 
@@ -187,7 +187,7 @@ async function addProduct(req, res) {
         const decoded = jwt.verify(token, secretKey);
         const role = decoded.role;
 
-        if (role === 'admin') {
+        if (role === 'admin' || role === 'superAdmin') {
             // Kết nối đến cơ sở dữ liệu
             await connectToDatabase();
 
@@ -259,87 +259,72 @@ async function updateProduct(req, res) {
         const decoded = jwt.verify(token, secretKey);
         const role = decoded.role;
 
-        if (role === 'admin') {
-            // Kết nối đến cơ sở dữ liệu
-            await connectToDatabase();
-
-            // Bắt đầu giao dịch
-            const transaction = new sql.Transaction();
-            await transaction.begin();
-
-            try {
-                // Nhận dữ liệu sản phẩm từ req.body
-                const { id, ...fieldsToUpdate } = req.body;
-
-                // Tạo các câu truy vấn động để cập nhật các trường có giá trị mới
-                const updateProductFields = [];
-                const updateDetailProductFields = [];
-
-                // Khai báo biến imgSrcBuffer
-                let imgSrcBuffer = null;
-
-                if (fieldsToUpdate.name !== undefined) updateProductFields.push('name = @name');
-                if (fieldsToUpdate.price !== undefined) updateProductFields.push('price = @price');
-                if (fieldsToUpdate.percentDiscount !== undefined)
-                    updateProductFields.push('percentDiscount = @percentDiscount');
-                if (fieldsToUpdate.imgSrc !== undefined) {
-                    const imgSrc = fieldsToUpdate.imgSrc;
-                    if (imgSrc && imgSrc.startsWith('data:image')) {
-                        const base64Data = imgSrc.split(',')[1];
-                        imgSrcBuffer = Buffer.from(base64Data, 'base64');
-                    } else if (imgSrc) {
-                        imgSrcBuffer = Buffer.from(imgSrc, 'base64');
-                    }
-                    updateProductFields.push('imgSrc = @imgSrc');
-                }
-                if (fieldsToUpdate.origin !== undefined) updateDetailProductFields.push('origin = @origin');
-                if (fieldsToUpdate.expiry !== undefined) updateDetailProductFields.push('expiry = @expiry');
-                if (fieldsToUpdate.quantityInStock !== undefined)
-                    updateDetailProductFields.push('quantityInStock = @quantityInStock');
-                if (fieldsToUpdate.trademark !== undefined) updateDetailProductFields.push('trademark = @trademark');
-
-                if (updateProductFields.length > 0) {
-                    let updateProductQuery = `UPDATE products SET ${updateProductFields.join(', ')} WHERE id = @id`;
-                    const request = transaction.request();
-                    request.input('id', sql.Int, id);
-                    if (fieldsToUpdate.name) request.input('name', sql.NVarChar, fieldsToUpdate.name);
-                    if (fieldsToUpdate.price) request.input('price', sql.NVarChar, fieldsToUpdate.price);
-                    if (fieldsToUpdate.percentDiscount)
-                        request.input('percentDiscount', sql.NVarChar, fieldsToUpdate.percentDiscount);
-                    if (imgSrcBuffer) request.input('imgSrc', sql.VarBinary, imgSrcBuffer); // Sử dụng imgSrcBuffer nếu có
-                    await request.query(updateProductQuery);
-                }
-
-                if (updateDetailProductFields.length > 0) {
-                    let updateDetailProductQuery = `UPDATE detailProducts SET ${updateDetailProductFields.join(', ')} WHERE id = @id`;
-                    const request = transaction.request();
-                    request.input('id', sql.Int, id);
-                    if (fieldsToUpdate.origin) request.input('origin', sql.NVarChar, fieldsToUpdate.origin);
-                    if (fieldsToUpdate.expiry) request.input('expiry', sql.NVarChar, fieldsToUpdate.expiry);
-                    if (fieldsToUpdate.quantityInStock)
-                        request.input('quantityInStock', sql.Int, fieldsToUpdate.quantityInStock);
-                    if (fieldsToUpdate.trademark) request.input('trademark', sql.NVarChar, fieldsToUpdate.trademark);
-                    await request.query(updateDetailProductQuery);
-                }
-
-                // Commit giao dịch nếu mọi thứ thành công
-                await transaction.commit();
-                return res.status(200).json({ message: 'Sản phẩm đã được cập nhật thành công!' });
-            } catch (error) {
-                // Rollback giao dịch nếu có lỗi
-                await transaction.rollback();
-                console.error(error);
-                return res.status(500).json({ message: 'Lỗi khi cập nhật sản phẩm!' });
-            }
-        } else {
+        if (role !== 'admin') {
             return res.status(403).json({ message: 'Không có quyền truy cập!' });
+        }
+
+        await connectToDatabase();
+        const transaction = new sql.Transaction();
+        await transaction.begin();
+
+        try {
+            const { id, ...fieldsToUpdate } = req.body;
+
+            // Xây dựng câu truy vấn động
+            const updateProductFields = [];
+            const updateDetailProductFields = [];
+            let imgSrcBuffer = null;
+
+            if (fieldsToUpdate.name) updateProductFields.push('name = @name');
+            if (fieldsToUpdate.price) updateProductFields.push('price = @price');
+            if (fieldsToUpdate.percentDiscount) updateProductFields.push('percentDiscount = @percentDiscount');
+            if (fieldsToUpdate.imgSrc) {
+                const imgSrc = fieldsToUpdate.imgSrc;
+                imgSrcBuffer = imgSrc.startsWith('data:image')
+                    ? Buffer.from(imgSrc.split(',')[1], 'base64')
+                    : Buffer.from(imgSrc, 'base64');
+                updateProductFields.push('imgSrc = @imgSrc');
+            }
+            if (fieldsToUpdate.origin) updateDetailProductFields.push('origin = @origin');
+            if (fieldsToUpdate.expiry) updateDetailProductFields.push('expiry = @expiry');
+            if (fieldsToUpdate.quantityInStock) updateDetailProductFields.push('quantityInStock = @quantityInStock');
+            if (fieldsToUpdate.trademark) updateDetailProductFields.push('trademark = @trademark');
+
+            if (updateProductFields.length > 0) {
+                const updateProductQuery = `UPDATE products SET ${updateProductFields.join(', ')} WHERE id = @id`;
+                const request = transaction.request().input('id', sql.Int, id);
+                if (fieldsToUpdate.name) request.input('name', sql.NVarChar, fieldsToUpdate.name);
+                if (fieldsToUpdate.price) request.input('price', sql.NVarChar, fieldsToUpdate.price);
+                if (fieldsToUpdate.percentDiscount)
+                    request.input('percentDiscount', sql.NVarChar, fieldsToUpdate.percentDiscount);
+                if (imgSrcBuffer) request.input('imgSrc', sql.VarBinary, imgSrcBuffer);
+                await request.query(updateProductQuery);
+            }
+
+            if (updateDetailProductFields.length > 0) {
+                const updateDetailProductQuery = `UPDATE detailProducts SET ${updateDetailProductFields.join(', ')} WHERE id = @id`;
+                const request = transaction.request().input('id', sql.Int, id);
+                if (fieldsToUpdate.origin) request.input('origin', sql.NVarChar, fieldsToUpdate.origin);
+                if (fieldsToUpdate.expiry) request.input('expiry', sql.NVarChar, fieldsToUpdate.expiry);
+                if (fieldsToUpdate.quantityInStock)
+                    request.input('quantityInStock', sql.Int, fieldsToUpdate.quantityInStock);
+                if (fieldsToUpdate.trademark) request.input('trademark', sql.NVarChar, fieldsToUpdate.trademark);
+                await request.query(updateDetailProductQuery);
+            }
+
+            await transaction.commit();
+            return res.status(200).json({ message: 'Sản phẩm đã được cập nhật thành công!' });
+        } catch (error) {
+            await transaction.rollback();
+            console.error(error);
+            return res.status(500).json({ message: 'Lỗi khi cập nhật sản phẩm!' });
         }
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
             return res.status(401).json({ message: 'Phiên đăng nhập đã hết hạn!' });
         }
         console.error(error);
-        return res.status(500).json({ message: 'Lỗi khi cập nhật sản phẩm!' });
+        return res.status(500).json({ message: 'Lỗi khi xác thực người dùng!' });
     }
 }
 
@@ -354,7 +339,7 @@ async function deleteProduct(req, res) {
         const decoded = jwt.verify(token, secretKey);
         const role = decoded.role;
 
-        if (role === 'admin') {
+        if (role === 'admin' || role === 'superAdmin') {
             // Kết nối đến cơ sở dữ liệu
             await connectToDatabase();
 

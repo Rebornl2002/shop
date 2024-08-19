@@ -93,6 +93,21 @@ const ProductTable = () => {
         }
     };
 
+    const productFields = [
+        { label: 'Tên sản phẩm', name: 'name', required: true },
+        { label: 'Giá', name: 'price', type: 'number', required: true, validate: (value) => value > 0 },
+        {
+            label: 'Phần trăm giảm giá',
+            name: 'percentDiscount',
+            type: 'number',
+            validate: (value) => value >= 0 && value <= 100,
+        },
+        { label: 'Xuất xứ', name: 'origin' },
+        { label: 'Thương hiệu', name: 'trademark' },
+        { label: 'Số lượng', name: 'quantityInStock', type: 'number', required: true, validate: (value) => value >= 0 },
+        { label: 'Hạn sử dụng', name: 'expiry' },
+    ];
+
     return (
         <Box sx={{ height: 400, width: '100%', marginBottom: '60px' }}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px', marginTop: '10px' }}>
@@ -112,7 +127,9 @@ const ProductTable = () => {
                 onClose={handleClose}
                 product={currentProduct}
                 onSave={currentProduct?.id ? handleSave : handleSaveNew}
-                onChange={setCurrentProduct}
+                fields={productFields}
+                title={currentProduct?.id ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}
+                onImg={true}
             />
         </Box>
     );

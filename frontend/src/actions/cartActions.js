@@ -120,7 +120,7 @@ export const addCart = (id, quantity) => {
 export const updateCartQuantity = (id, quantity) => {
     return () => {
         return axios
-            .put(
+            .patch(
                 'http://localhost:4000/api/data/updateCartQuantity',
                 { id, quantity },
                 {

@@ -1,18 +1,16 @@
 import {
-    FETCH_USERS_REQUEST,
-    FETCH_USERS_SUCCESS,
-    FETCH_USERS_FAILURE,
+    FETCH_ERROR,
     SET_LOGIN_MESSAGE,
     LOGIN_SUCCESS,
     LOGOUT,
     SET_ROLE,
     DETAIL_USER,
+    ALL_DETAIL_USERS,
 } from '../actions/userActions';
 
 const initialState = {
-    loading: false,
-    users: [],
     detail: [],
+    allDetails: [],
     error: '',
     loginMessage: '',
     isLoggedIn: false, // Khởi tạo isLoggedIn là false
@@ -21,23 +19,9 @@ const initialState = {
 
 const userReducer = (state = initialState, action) => {
     switch (action.type) {
-        case FETCH_USERS_REQUEST:
+        case FETCH_ERROR:
             return {
                 ...state,
-                loading: true,
-            };
-        case FETCH_USERS_SUCCESS:
-            return {
-                ...state,
-                loading: false,
-                users: action.payload,
-                error: '',
-            };
-        case FETCH_USERS_FAILURE:
-            return {
-                ...state,
-                loading: false,
-                users: [],
                 error: action.payload,
             };
         case SET_LOGIN_MESSAGE:
@@ -54,7 +38,6 @@ const userReducer = (state = initialState, action) => {
             return {
                 ...state,
                 isLoggedIn: false,
-                users: [],
                 error: '',
                 loginMessage: '',
                 role: '',
@@ -68,6 +51,11 @@ const userReducer = (state = initialState, action) => {
             return {
                 ...state,
                 detail: action.payload,
+            };
+        case ALL_DETAIL_USERS:
+            return {
+                ...state,
+                allDetails: action.payload,
             };
         default:
             return state;

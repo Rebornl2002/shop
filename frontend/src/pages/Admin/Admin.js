@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretRight } from '@fortawesome/free-solid-svg-icons';
 import ProductTable from '@/components/Table/ProducTable';
 // import RevenueTable from '@/components/RevenueTable/RevenueTable';
-// import UserTable from '@/components/UserTable/UserTable';
+import UserTable from '@/components/Table/UserTable';
 // import OrderTable from '@/components/OrderTable/OrderTable';
 
 const cx = classNames.bind(styles);
@@ -23,8 +23,8 @@ function Admin() {
             //     return <RevenueTable />;
             case 'ProductTable':
                 return <ProductTable />;
-            // case 'UserTable':
-            //     return <UserTable />;
+            case 'UserTable':
+                return <UserTable />;
             // case 'OrderTable':
             //     return <OrderTable />;
             default:

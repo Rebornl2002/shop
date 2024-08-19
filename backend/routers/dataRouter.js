@@ -14,6 +14,7 @@ router.get('/detailUser', userController.getDetailUser);
 router.get('/products/discount', productController.getDiscountProducts);
 router.get('/status', userController.status);
 router.get('/allDetailProducts', productController.getAllDetailProducts);
+router.get('/allDetailUsers', userController.getAllDetailUsers);
 
 router.post('/users/login', userController.checkUserLogin);
 router.post('/users', userController.createUser);
@@ -22,8 +23,9 @@ router.post('/logout', userController.logout);
 router.post('/products', productController.addProduct);
 
 router.put('/updateDetailUser', userController.updateDetailUser);
-router.put('/updateCartQuantity', cartController.updateCartQuantity);
-router.put('/updateProduct', productController.updateProduct);
+router.patch('/updateCartQuantity', cartController.updateCartQuantity);
+router.patch('/updateProduct', productController.updateProduct);
+router.patch('/toggerStatus', userController.toggleUserStatus);
 
 router.delete('/blogs/:id', blogController.deleteBlog);
 router.delete('/carts', cartController.deleteCart);

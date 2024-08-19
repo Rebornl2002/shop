@@ -193,7 +193,7 @@ export const fetchAddProduct = (currentProduct) => {
 export const fetchUpdateProduct = (data) => {
     return (dispatch) => {
         return axios
-            .put('http://localhost:4000/api/data/updateProduct', data, { withCredentials: true })
+            .patch('http://localhost:4000/api/data/updateProduct', data, { withCredentials: true })
             .then((response) => {
                 Toast.success(response.data.message);
                 return Promise.resolve();
