@@ -10,6 +10,7 @@ import { fetchDetailUser } from '@/actions/userActions';
 import { useParams } from 'react-router-dom';
 import { Toast } from '@/components/Toast/Toast';
 import { addCart, getCartData } from '@/actions/cartActions';
+import { Link } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -125,7 +126,9 @@ function Product() {
                                     <FontAwesomeIcon icon={faCartPlus} className={cx('cart-icon')} />
                                     Thêm vào giỏ hàng
                                 </div>
-                                <div className={cx('buy-btn')}>Mua ngay</div>
+                                <Link to="/buy">
+                                    <div className={cx('buy-btn')}>Mua ngay</div>
+                                </Link>
                             </div>
                         </div>
                     </div>

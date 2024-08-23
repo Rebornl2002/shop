@@ -11,6 +11,7 @@ export const SELECT_PRODUCT = 'SELECT_PRODUCT';
 export const DETAIL_PRODUCT = 'DETAIL_PRODUCT';
 export const DISCOUNT_PRODUCT = 'DISCOUNT_PRODUCT';
 export const ALL_DETAIL_PRODUCTS = 'ALL_DETAIL_PRODUCTS';
+export const PRODUCT_T0_PURCHASE = 'PRODUCT_T0_PURCHASE';
 
 // Action creators
 export const fetchProductsRequest = () => {
@@ -65,6 +66,13 @@ export const allDetailProducts = (product) => {
     return {
         type: ALL_DETAIL_PRODUCTS,
         payload: product,
+    };
+};
+
+export const getProductToPurchase = (product) => {
+    return {
+        type: PRODUCT_T0_PURCHASE,
+        payload: [product],
     };
 };
 

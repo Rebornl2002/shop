@@ -7,6 +7,7 @@ import { formattedPrice, handleCalculatePrice, totalMoney } from '@/calculate/ca
 import { updateCartQuantity, getCartData, deleteCart } from '@/actions/cartActions';
 import { useState } from 'react';
 import Confirm from '@/components/Confirm';
+import { Link } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -206,7 +207,9 @@ function DetailCart() {
                     <div className={cx('total')}>
                         Tổng: <span>{formattedPrice(totalMoneySelected())}</span>
                     </div>
-                    <div className={cx('buy-btn')}>Mua hàng</div>
+                    <Link to="/buy">
+                        <div className={cx('buy-btn')}>Mua hàng</div>
+                    </Link>
                 </div>
             </div>
         </div>

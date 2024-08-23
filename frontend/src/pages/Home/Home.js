@@ -6,12 +6,13 @@ import Blog from './Blog';
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchBlogs } from '@/actions/blogActions';
-import { fetchDiscountProducts, fetchProducts, selectProduct } from '@/actions/productActions';
+import { fetchDiscountProducts, fetchProducts, getProductToPurchase, selectProduct } from '@/actions/productActions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { addCart, getCartData } from '@/actions/cartActions';
 import { Toast } from '@/components/Toast/Toast';
 import { handleCalculatePrice } from '@/calculate/calculate';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -31,6 +32,8 @@ function Home() {
     const [showProduct, setShowProduct] = useState(false);
 
     const isLogin = useSelector((state) => state.user.isLoggedIn);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         dispatch(fetchBlogs());
@@ -66,6 +69,13 @@ function Home() {
                         console.error('Eror', error);
                     });
             }
+        }
+    };
+
+    const handleBuy = () => {
+        if (quantity !== 0) {
+            dispatch(getProductToPurchase({ ...selectedProduct, quantity: quantity }));
+            navigate('/buy');
         }
     };
 
@@ -135,7 +145,13 @@ function Home() {
                                 >
                                     Thêm vào giỏ hàng
                                 </div>
-                                <div className={cx('product-btn', { 'product-btn-ban': quantity === 0 })}>Mua ngay</div>
+
+                                <div
+                                    className={cx('product-btn', { 'product-btn-ban': quantity === 0 })}
+                                    onClick={() => handleBuy()}
+                                >
+                                    Mua ngay
+                                </div>
                             </div>
                             <div className={cx('exit-btn')} onClick={handleExit}>
                                 <FontAwesomeIcon icon={faXmark} />

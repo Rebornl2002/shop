@@ -8,6 +8,7 @@ import {
     DETAIL_PRODUCT,
     DISCOUNT_PRODUCT,
     ALL_DETAIL_PRODUCTS,
+    PRODUCT_T0_PURCHASE,
 } from '../actions/productActions.js';
 
 const initialState = {
@@ -17,6 +18,7 @@ const initialState = {
     searchs: [],
     details: [],
     allDetails: [],
+    productToPurchase: [],
     error: '',
 };
 
@@ -65,6 +67,11 @@ const productReducer = (state = initialState, action) => {
             return {
                 ...state,
                 allDetails: action.payload,
+            };
+        case PRODUCT_T0_PURCHASE:
+            return {
+                ...state,
+                productToPurchase: action.payload,
             };
         default:
             return state;

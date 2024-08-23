@@ -115,7 +115,9 @@ function Cart({ data }) {
                             <Link to="/detailCart">
                                 <div className={cx('cart-btn')}>Xem giỏ hàng</div>
                             </Link>
-                            <div className={cx('buy-btn')}>Mua ngay</div>
+                            <Link to="/buy">
+                                <div className={cx('buy-btn')}>Mua ngay</div>
+                            </Link>
                         </div>
                     </div>
                 )}
