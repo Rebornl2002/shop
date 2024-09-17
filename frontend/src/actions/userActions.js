@@ -90,6 +90,7 @@ export const checkUser = (username, password) => {
 export const fetchLogout = () => async (dispatch) => {
     try {
         await axios.post('http://localhost:4000/api/data/logout', undefined, { withCredentials: true });
+        localStorage.clear();
         dispatch(logout());
     } catch (error) {
         console.error('Logout failed', error);

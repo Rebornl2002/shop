@@ -5,6 +5,8 @@ import blogReducer from './blogReducers';
 import productReducer from './productReducers';
 import userReducer from './userReducers';
 import cartReducer from './cartReduces';
+import creditReducer from './creditReducers';
+import orderReducer from './orderReducers';
 
 // Kết hợp các reducer con thành một root reducer
 const rootReducer = combineReducers({
@@ -12,7 +14,8 @@ const rootReducer = combineReducers({
     product: productReducer,
     user: userReducer,
     cart: cartReducer,
-    // thêm các reducer khác ở đây nếu có
+    credit: creditReducer,
+    order: orderReducer,
 });
 
 export default rootReducer;

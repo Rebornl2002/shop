@@ -12,6 +12,8 @@ export const DETAIL_PRODUCT = 'DETAIL_PRODUCT';
 export const DISCOUNT_PRODUCT = 'DISCOUNT_PRODUCT';
 export const ALL_DETAIL_PRODUCTS = 'ALL_DETAIL_PRODUCTS';
 export const PRODUCT_T0_PURCHASE = 'PRODUCT_T0_PURCHASE';
+export const HAS_MORE_PRODUCTS = 'HAS_MORE_PRODUCTS';
+export const REFRESH_PRODUCT = 'REFRESH_PRODUCT';
 
 // Action creators
 export const fetchProductsRequest = () => {
@@ -70,30 +72,47 @@ export const allDetailProducts = (product) => {
 };
 
 export const getProductToPurchase = (product) => {
+    localStorage.setItem('productToPurchase', JSON.stringify(product));
     return {
         type: PRODUCT_T0_PURCHASE,
-        payload: [product],
+        payload: product,
     };
 };
 
+export const hasMoreProduct = (data) => {
+    return {
+        type: HAS_MORE_PRODUCTS,
+        payload: data,
+    };
+};
+
+export const refreshProduct = () => {
+    return { type: REFRESH_PRODUCT };
+};
+
 // Async action creator using thunk
-export const fetchProducts = () => {
+export const fetchProducts = (page) => {
     return (dispatch) => {
+        const limit = 4;
         dispatch(fetchProductsRequest());
         return axios
-            .get('http://localhost:4000/api/data/products')
+            .get(`http://localhost:4000/api/data/products?page=${page}&limit=${limit}`)
             .then((response) => {
-                const products = response.data;
+                const products = response.data.products;
                 if (Array.isArray(products)) {
-                    // Kiểm tra dữ liệu trả về có phải là mảng không
+                    if (page === 1) {
+                        dispatch(refreshProduct());
+                    }
                     dispatch(fetchProductsSuccess(products));
+                    dispatch(hasMoreProduct(response.data.products.length === limit));
                 } else {
-                    dispatch(fetchProductsFailure('Invalid data format')); // Xử lý dữ liệu không hợp lệ
+                    dispatch(fetchProductsFailure('Invalid data format'));
                 }
             })
             .catch((error) => {
                 const errorMsg = error.message;
                 dispatch(fetchProductsFailure(errorMsg));
+                throw error;
             });
     };
 };

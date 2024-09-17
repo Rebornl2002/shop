@@ -5,7 +5,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import { totalMoney, formattedPrice, handleCalculatePrice } from '@/calculate/calculate';
 import Empty from '@/assets/images/cartEmpty.jpg';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { getProductToPurchase } from '@/actions/productActions';
 
 const cx = classNames.bind(styles);
 
@@ -13,6 +15,8 @@ function Cart({ data }) {
     const [isMenuVisible, setIsMenuVisible] = useState(false);
     const hideMenuTimeoutRef = useRef(null);
     const [selectedProduct, setSelectedProduct] = useState([]);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const showMenu = () => {
         if (hideMenuTimeoutRef.current) {
@@ -43,6 +47,13 @@ function Cart({ data }) {
                 return [...prevSelected, item];
             }
         });
+    };
+
+    const handleBuy = (data) => {
+        if (selectedProduct.length > 0) {
+            dispatch(getProductToPurchase(selectedProduct));
+            navigate('/buy');
+        }
     };
 
     const totalMoneySelected = () => {
@@ -115,9 +126,9 @@ function Cart({ data }) {
                             <Link to="/detailCart">
                                 <div className={cx('cart-btn')}>Xem giỏ hàng</div>
                             </Link>
-                            <Link to="/buy">
-                                <div className={cx('buy-btn')}>Mua ngay</div>
-                            </Link>
+                            <div className={cx('buy-btn')} onClick={() => handleBuy(selectedProduct)}>
+                                Mua ngay
+                            </div>
                         </div>
                     </div>
                 )}

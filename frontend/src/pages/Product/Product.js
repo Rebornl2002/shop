@@ -1,16 +1,15 @@
 import classNames from 'classnames/bind';
 import styles from './Product.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faArrowRight, faCartPlus, faTruckFast } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faArrowRight, faCartPlus } from '@fortawesome/free-solid-svg-icons';
 import { formattedPrice, handleCalculatePrice } from '@/calculate/calculate';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchDetailProducts } from '@/actions/productActions';
+import { fetchDetailProducts, getProductToPurchase } from '@/actions/productActions';
 import { fetchDetailUser } from '@/actions/userActions';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Toast } from '@/components/Toast/Toast';
 import { addCart, getCartData } from '@/actions/cartActions';
-import { Link } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -21,8 +20,7 @@ function Product() {
     const [quantity, setQuantity] = useState(1);
 
     const isLogin = useSelector((state) => state.user.isLoggedIn);
-    const detailUser = useSelector((state) => state.user.detail);
-    const [address, setAddress] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (isLogin) {
@@ -31,18 +29,10 @@ function Product() {
     }, [dispatch, isLogin]);
 
     useEffect(() => {
-        if (detailUser.length > 0) {
-            setAddress(detailUser[0].address);
-        }
-    }, [detailUser]);
-
-    useEffect(() => {
         dispatch(fetchDetailProducts(id));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
-    console.log(detailUser);
-    console.log(address);
     const handleAddQuantity = () => {
         setQuantity(quantity + 1);
     };
@@ -66,6 +56,13 @@ function Product() {
                         console.error('Eror', error);
                     });
             }
+        }
+    };
+
+    const handleBuy = () => {
+        if (quantity > 0) {
+            dispatch(getProductToPurchase([{ ...detailProduct[0], quantity }]));
+            navigate('/buy');
         }
     };
 
@@ -95,18 +92,6 @@ function Product() {
                                     </div>
                                 )}
                             </div>
-                            <div className={cx('transport')}>
-                                <span className={cx('attribute-name')}>Vận chuyển</span>
-                                <FontAwesomeIcon icon={faTruckFast} className={cx('icon')} />
-                                <span>Vận chuyển tới</span>
-                                <input
-                                    type="text"
-                                    placeholder="Vui lòng nhập địa chỉ"
-                                    className={cx('address')}
-                                    value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                />
-                            </div>
                             <div className={cx('quantity')}>
                                 <span className={cx('attribute-name')}>Số lượng</span>
                                 <FontAwesomeIcon
@@ -126,9 +111,9 @@ function Product() {
                                     <FontAwesomeIcon icon={faCartPlus} className={cx('cart-icon')} />
                                     Thêm vào giỏ hàng
                                 </div>
-                                <Link to="/buy">
-                                    <div className={cx('buy-btn')}>Mua ngay</div>
-                                </Link>
+                                <div className={cx('buy-btn')} onClick={() => handleBuy()}>
+                                    Mua ngay
+                                </div>
                             </div>
                         </div>
                     </div>

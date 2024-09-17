@@ -11,12 +11,22 @@ async function getAllProducts(req, res) {
     try {
         await connectToDatabase();
 
-        // Lấy dữ liệu từ cơ sở dữ liệu
-        const result = await sql.query`SELECT * FROM products`;
+        // Nhận tham số `page` và `limit` từ query string (nếu không có thì đặt mặc định)
+        const page = parseInt(req.query.page, 10) || 1; // Trang hiện tại (mặc định là trang 1)
+        const limit = parseInt(req.query.limit, 10) || 4; // Số lượng sản phẩm mỗi trang (mặc định là 10)
+
+        // Tính toán vị trí bắt đầu (offset)
+        const offset = (page - 1) * limit;
+
+        // Truy vấn để lấy dữ liệu sản phẩm theo trang và giới hạn
+        const result = await sql.query`
+            SELECT * FROM products
+            ORDER BY id
+            OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY
+        `;
 
         // Xử lý dữ liệu để chuyển đổi trường `imgSrc` thành base64
         const products = result.recordset.map((product) => {
-            // Chuyển đổi dữ liệu `imgSrc` thành base64
             const base64ImgSrc = product.imgSrc ? product.imgSrc.toString('base64') : null;
             return {
                 ...product,
@@ -24,8 +34,12 @@ async function getAllProducts(req, res) {
             };
         });
 
-        // Gửi dữ liệu về client
-        res.json(products);
+        // Trả về dữ liệu cho client bao gồm cả thông tin về trang hiện tại và số lượng sản phẩm mỗi trang
+        res.json({
+            page,
+            limit,
+            products,
+        });
     } catch (err) {
         console.error('Database connection failed:', err);
         res.status(500).send('Database connection failed');
@@ -102,11 +116,20 @@ async function getDetailProduct(req, res) {
     try {
         await connectToDatabase();
         const result = await sql.query`
-            SELECT dp.*, p.*
-            FROM detailProducts dp
-            JOIN products p ON dp.id = p.id
-            WHERE dp.id = ${id}
+            SELECT 
+                p.*, 
+                d.trademark, 
+                d.expiry, 
+                d.quantityInStock, 
+                d.origin
+            FROM products p
+            JOIN detailProducts d ON p.id = d.id
+            WHERE d.id = ${id}   
         `;
+        // SELECT dp.*, p.*
+        //     FROM detailProducts dp
+        //     JOIN products p ON dp.id = p.id
+        //     WHERE dp.id = ${id}
 
         // Xử lý dữ liệu để chuyển đổi trường `imgSrc` thành base64
         const products = result.recordset.map((product) => {
@@ -259,7 +282,7 @@ async function updateProduct(req, res) {
         const decoded = jwt.verify(token, secretKey);
         const role = decoded.role;
 
-        if (role !== 'admin') {
+        if (role !== 'admin' && role !== 'superAdmin') {
             return res.status(403).json({ message: 'Không có quyền truy cập!' });
         }
 

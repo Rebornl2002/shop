@@ -4,7 +4,7 @@
     background-color: var(--default-background-color);
     box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.12);
     border-radius: 4px;
-    padding-bottom: 20px;
+    padding-bottom: 30px;
 }
 
 .wrapper-item {
@@ -115,4 +115,27 @@
 
 .advertisement-img {
     flex: 1;
+}
+
+.more-btn-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.more-btn {
+    text-align: center;
+    background-color: var(--default);
+    padding: 8px;
+    color: var(--white);
+    text-transform: uppercase;
+    border-radius: 4px;
+    font-size: 1.4rem;
+    width: 10%;
+    cursor: pointer;
+
+    &:hover {
+        background-color: var(--default-bold);
+    }
 }

@@ -4,6 +4,8 @@ const blogController = require('../controller/blogController');
 const productController = require('../controller/productController');
 const userController = require('../controller/userController');
 const cartController = require('../controller/cartController');
+const orderController = require('../controller/orderController');
+const creditController = require('../controller/creditController');
 
 router.get('/blogs', blogController.getAllBlogs);
 router.get('/products', productController.getAllProducts);
@@ -15,12 +17,16 @@ router.get('/products/discount', productController.getDiscountProducts);
 router.get('/status', userController.status);
 router.get('/allDetailProducts', productController.getAllDetailProducts);
 router.get('/allDetailUsers', userController.getAllDetailUsers);
+router.get('/credit', creditController.getCreditData);
+router.get('/orders', orderController.getAllOrders);
 
 router.post('/users/login', userController.checkUserLogin);
 router.post('/users', userController.createUser);
 router.post('/carts', cartController.addToCart);
 router.post('/logout', userController.logout);
 router.post('/products', productController.addProduct);
+router.post('/order', orderController.addOrder);
+router.post('/credit', creditController.addCreditCard);
 
 router.put('/updateDetailUser', userController.updateDetailUser);
 router.patch('/updateCartQuantity', cartController.updateCartQuantity);

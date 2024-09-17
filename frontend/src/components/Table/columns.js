@@ -80,7 +80,7 @@ export const userColumns = (toggleStatus) => [
     },
     {
         field: 'status',
-        headerName: 'Trạng thái',
+        headerName: 'Thao tác',
         flex: 1,
         renderCell: (params) => {
             const isActive = params.value === 'active';
@@ -95,5 +95,50 @@ export const userColumns = (toggleStatus) => [
                 </Button>
             );
         },
+    },
+];
+
+export const orderColumns = (handleShowDetails) => [
+    { field: 'orderCode', headerName: 'Mã đơn', flex: 1 },
+    { field: 'username', headerName: 'TK', flex: 1 },
+    { field: 'name', headerName: 'Họ và tên', flex: 1 },
+    {
+        field: 'phone',
+        headerName: 'SĐT',
+        flex: 1,
+        renderCell: (params) => {
+            return <div>{params.value !== null ? '0' + params.value : ''}</div>;
+        },
+    },
+    {
+        field: 'paymentMethod',
+        headerName: 'Phương thức thanh toán',
+        flex: 1,
+        renderCell: (params) => {
+            const paymentMethods = {
+                CC: 'Thẻ',
+                COD: 'Khi nhận hàng',
+            };
+
+            return <div>{paymentMethods[params.value] || 'Không xác định'}</div>;
+        },
+    },
+    {
+        field: 'purchaseDate',
+        headerName: 'Ngày đặt hàng',
+        flex: 1,
+        renderCell: (params) => {
+            return <div>{formatDateString(params.value)}</div>;
+        },
+    },
+    {
+        field: 'actions',
+        headerName: 'Chi tiết',
+        width: 150,
+        renderCell: (params) => (
+            <Button variant="contained" onClick={() => handleShowDetails(params.row)}>
+                Chi tiết
+            </Button>
+        ),
     },
 ];

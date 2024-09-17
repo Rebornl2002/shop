@@ -9,16 +9,20 @@ import {
     DISCOUNT_PRODUCT,
     ALL_DETAIL_PRODUCTS,
     PRODUCT_T0_PURCHASE,
+    HAS_MORE_PRODUCTS,
+    REFRESH_PRODUCT,
 } from '../actions/productActions.js';
 
 const initialState = {
     loading: false,
     products: [],
+    currentPage: 1,
+    hasMore: true,
     discountProducts: [],
     searchs: [],
     details: [],
     allDetails: [],
-    productToPurchase: [],
+    productToPurchase: JSON.parse(localStorage.getItem('productToPurchase')) || [],
     error: '',
 };
 
@@ -33,7 +37,8 @@ const productReducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: false,
-                products: action.payload,
+                products: [...state.products, ...action.payload],
+                currentPage: state.currentPage + 1,
                 error: '',
             };
         case FETCH_PRODUCTS_FAILURE:
@@ -72,6 +77,17 @@ const productReducer = (state = initialState, action) => {
             return {
                 ...state,
                 productToPurchase: action.payload,
+            };
+        case HAS_MORE_PRODUCTS:
+            return {
+                ...state,
+                hasMore: action.payload,
+            };
+        case REFRESH_PRODUCT:
+            return {
+                ...state,
+                products: [],
+                currentPage: 1,
             };
         default:
             return state;

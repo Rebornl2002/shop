@@ -42,7 +42,7 @@ const cartReducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: false,
-                carts: [...state.carts, action.payload], // Thêm giỏ hàng mới vào danh sách
+                carts: [...state.carts, action.payload],
                 error: null,
             };
         case SET_MESSAGE:

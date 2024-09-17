@@ -136,7 +136,6 @@ async function updateCartQuantity(req, res) {
             return res.status(500).json({ message: 'Không thể cập nhật số lượng sản phẩm trong giỏ hàng!' });
         }
     } catch (error) {
-        console.error('Lỗi khi cập nhật số lượng sản phẩm trong giỏ hàng:', error);
         return res.status(500).json({ message: 'Lỗi khi cập nhật số lượng sản phẩm trong giỏ hàng!' });
     }
 }

@@ -7,13 +7,16 @@ import { formattedPrice, handleCalculatePrice, totalMoney } from '@/calculate/ca
 import { updateCartQuantity, getCartData, deleteCart } from '@/actions/cartActions';
 import { useState } from 'react';
 import Confirm from '@/components/Confirm';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { getProductToPurchase } from '@/actions/productActions';
+import { Toast } from '@/components/Toast/Toast';
 
 const cx = classNames.bind(styles);
 
 function DetailCart() {
     const data = useSelector((state) => state.cart.carts);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
     const [productDelete, setProductDelete] = useState({});
@@ -84,6 +87,15 @@ function DetailCart() {
                 console.error(err);
             });
         onClose();
+    };
+
+    const handleBuy = () => {
+        if (selectedProducts.length > 0) {
+            dispatch(getProductToPurchase(selectedProducts));
+            navigate('/buy');
+        } else {
+            Toast.error('Bạn chưa chọn sản phẩm để mua');
+        }
     };
 
     return (
@@ -207,9 +219,9 @@ function DetailCart() {
                     <div className={cx('total')}>
                         Tổng: <span>{formattedPrice(totalMoneySelected())}</span>
                     </div>
-                    <Link to="/buy">
-                        <div className={cx('buy-btn')}>Mua hàng</div>
-                    </Link>
+                    <div className={cx('buy-btn')} onClick={() => handleBuy()}>
+                        Mua hàng
+                    </div>
                 </div>
             </div>
         </div>

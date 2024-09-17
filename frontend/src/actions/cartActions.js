@@ -112,7 +112,6 @@ export const addCart = (id, quantity) => {
                 dispatch(addCartFailure(errorMsg));
                 dispatch(setMessage(errorMsg));
                 Toast.error(errorMsg);
-                // Trả về Promise.reject() để cho biết có lỗi xảy ra
             });
     };
 };

@@ -19,8 +19,6 @@ const UserTable = () => {
         dispatch(fetchAllDetailUsers());
     }, [dispatch]);
 
-    // console.log(data);
-
     useEffect(() => {
         if (data && data.length > 0) {
             setRows(data);
@@ -69,7 +67,7 @@ const UserTable = () => {
         setOpen(true);
     };
 
-    const productFields = [
+    const registerFields = [
         { label: 'Tên đăng nhập', name: 'username', required: true },
         { label: 'Mật khẩu', name: 'password', required: true },
     ];
@@ -96,7 +94,7 @@ const UserTable = () => {
                 onClose={handleClose}
                 product={currentProduct}
                 onSave={handleSave}
-                fields={productFields}
+                fields={registerFields}
                 title={'Thêm admin'}
             />
         </Box>

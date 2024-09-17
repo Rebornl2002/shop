@@ -3,7 +3,7 @@ import styles from './Home.module.scss';
 import Slide from './Slide';
 import Sell from './Sell';
 import Blog from './Blog';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchBlogs } from '@/actions/blogActions';
 import { fetchDiscountProducts, fetchProducts, getProductToPurchase, selectProduct } from '@/actions/productActions';
@@ -22,7 +22,7 @@ function Home() {
     const loadingBlog = useSelector((state) => state.blog.loading);
     const errorBlog = useSelector((state) => state.blog.error);
 
-    const products = useSelector((state) => state.product.products);
+    const { products, currentPage, hasMore } = useSelector((state) => state.product);
     const loadingProduct = useSelector((state) => state.product.loading);
     const errorProduct = useSelector((state) => state.product.error);
     const discountProducts = useSelector((state) => state.product.discountProducts);
@@ -35,11 +35,16 @@ function Home() {
 
     const navigate = useNavigate();
 
+    const hasFetchedRef = useRef(false);
+
     useEffect(() => {
-        dispatch(fetchBlogs());
-        dispatch(fetchProducts());
-        dispatch(fetchDiscountProducts());
-    }, [dispatch]);
+        if (!hasFetchedRef.current) {
+            dispatch(fetchBlogs());
+            dispatch(fetchProducts(1));
+            dispatch(fetchDiscountProducts());
+            hasFetchedRef.current = true;
+        }
+    }, [dispatch, currentPage]);
 
     const handleAddQuantity = () => {
         setQuantity(quantity + 1);
@@ -74,7 +79,7 @@ function Home() {
 
     const handleBuy = () => {
         if (quantity !== 0) {
-            dispatch(getProductToPurchase({ ...selectedProduct, quantity: quantity }));
+            dispatch(getProductToPurchase([{ ...selectedProduct, quantity: quantity }]));
             navigate('/buy');
         }
     };
@@ -91,14 +96,26 @@ function Home() {
         return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc selectedProduct thay đổi
     }, [selectedProduct]);
 
+    const handleMore = () => {
+        dispatch(fetchProducts(currentPage));
+    };
+
     return (
         <div className={cx('wrapper')}>
             <Slide />
-            {!loadingProduct && !errorProduct && discountProducts.length > 0 && (
+            {discountProducts.length > 0 && (
                 <Sell props={discountProducts} title="Đang khuyến mãi" sale={true} type={false} />
             )}
             {!loadingProduct && !errorProduct && products.length > 0 && (
-                <Sell props={products} title="Hàng mới về " type={true} sale={false} />
+                <Sell
+                    props={products}
+                    title="Hàng mới về "
+                    type={true}
+                    sale={false}
+                    more={true}
+                    onMore={handleMore}
+                    hasMore={hasMore}
+                />
             )}
             {!loadingBlog && !errorBlog && blogs.length > 0 && <Blog props={blogs} />}
             {selectedProduct !== undefined && (

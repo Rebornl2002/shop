@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
-function Discount({ props, title, sale, type }) {
+function Sell({ props, title, sale, type, more = false, onMore, hasMore = true }) {
     const formattedPrice = (price) => {
         return price.toLocaleString('vi-VN', {
             style: 'currency',
@@ -24,6 +24,24 @@ function Discount({ props, title, sale, type }) {
     };
 
     const dispatch = useDispatch();
+
+    const handleMore = async (event) => {
+        event.preventDefault(); // Ngăn hành động mặc định
+        const moreBtnElement = event.target; // Lấy vị trí của nút "Xem thêm"
+
+        try {
+            await onMore(); // Gọi hàm tải thêm sản phẩm
+
+            // Sau khi dữ liệu được render, cuộn trang đến phần tử cần hiển thị giữa màn hình
+            moreBtnElement.scrollIntoView({
+                behavior: 'smooth', // Cuộn trang mượt mà
+                block: 'center', // Đặt phần tử nằm giữa màn hình
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     return (
         <div className={cx('wrapper')}>
             <Title title={title} type={type} />
@@ -61,6 +79,13 @@ function Discount({ props, title, sale, type }) {
                     </div>
                 ))}
             </div>
+            {more && hasMore && (
+                <div className={cx('more-btn-wrapper')}>
+                    <div className={cx('more-btn')} onClick={handleMore}>
+                        Xem thêm
+                    </div>
+                </div>
+            )}
             {sale === true && (
                 <div className={cx('wrapper-advertisement')}>
                     <img className={cx('advertisement-img')} src={sale1} alt="sale" />
@@ -71,4 +96,4 @@ function Discount({ props, title, sale, type }) {
     );
 }
 
-export default Discount;
+export default Sell;
