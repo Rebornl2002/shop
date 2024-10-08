@@ -3,9 +3,8 @@ import axios from 'axios';
 import { Toast } from '../components/Toast/Toast.js';
 
 // Action types
-export const FETCH_PRODUCTS_REQUEST = 'FETCH_PRODUCTS_REQUEST';
-export const FETCH_PRODUCTS_SUCCESS = 'FETCH_PRODUCTS_SUCCESS';
-export const FETCH_PRODUCTS_FAILURE = 'FETCH_PRODUCTS_FAILURE';
+export const FETCH_PRODUCTS = 'FETCH_PRODUCTS';
+export const FETCH_FAILURE = 'FETCH_FAILURE';
 export const SEARCH_PRODUCTS = 'SEARCH_PRODUCTS';
 export const SELECT_PRODUCT = 'SELECT_PRODUCT';
 export const DETAIL_PRODUCT = 'DETAIL_PRODUCT';
@@ -14,24 +13,26 @@ export const ALL_DETAIL_PRODUCTS = 'ALL_DETAIL_PRODUCTS';
 export const PRODUCT_T0_PURCHASE = 'PRODUCT_T0_PURCHASE';
 export const HAS_MORE_PRODUCTS = 'HAS_MORE_PRODUCTS';
 export const REFRESH_PRODUCT = 'REFRESH_PRODUCT';
+export const VARIATION_PRODUCT = 'VARIATION_PRODUCT';
+export const SET_LOADING_STATE = 'SET_LOADING_STATE';
 
-// Action creators
-export const fetchProductsRequest = () => {
+export const setLoadingState = (key, isLoading) => {
     return {
-        type: FETCH_PRODUCTS_REQUEST,
+        type: SET_LOADING_STATE,
+        payload: { key, isLoading },
     };
 };
 
 export const fetchProductsSuccess = (products) => {
     return {
-        type: FETCH_PRODUCTS_SUCCESS,
+        type: FETCH_PRODUCTS,
         payload: products,
     };
 };
 
-export const fetchProductsFailure = (error) => {
+export const fetchFailure = (error) => {
     return {
-        type: FETCH_PRODUCTS_FAILURE,
+        type: FETCH_FAILURE,
         payload: error,
     };
 };
@@ -90,11 +91,20 @@ export const refreshProduct = () => {
     return { type: REFRESH_PRODUCT };
 };
 
+export const getVariationProduct = (data) => {
+    return {
+        type: VARIATION_PRODUCT,
+        payload: data,
+    };
+};
+
 // Async action creator using thunk
 export const fetchProducts = (page) => {
     return (dispatch) => {
         const limit = 4;
-        dispatch(fetchProductsRequest());
+        const loadingKey = 'fetchProducts';
+        dispatch(setLoadingState(loadingKey, true));
+
         return axios
             .get(`http://localhost:4000/api/data/products?page=${page}&limit=${limit}`)
             .then((response) => {
@@ -106,19 +116,25 @@ export const fetchProducts = (page) => {
                     dispatch(fetchProductsSuccess(products));
                     dispatch(hasMoreProduct(response.data.products.length === limit));
                 } else {
-                    dispatch(fetchProductsFailure('Invalid data format'));
+                    dispatch(fetchFailure('Invalid data format'));
                 }
             })
             .catch((error) => {
                 const errorMsg = error.message;
-                dispatch(fetchProductsFailure(errorMsg));
+                dispatch(fetchFailure(errorMsg));
                 throw error;
+            })
+            .finally(() => {
+                dispatch(setLoadingState(loadingKey, false));
             });
     };
 };
 
 export const fetchDiscountProducts = () => {
     return (dispatch) => {
+        const loadingKey = 'fetchDiscountProducts';
+        dispatch(setLoadingState(loadingKey, true));
+
         return axios
             .get('http://localhost:4000/api/data/products/discount')
             .then((response) => {
@@ -127,19 +143,25 @@ export const fetchDiscountProducts = () => {
                     // Kiểm tra dữ liệu trả về có phải là mảng không
                     dispatch(discountProduct(products));
                 } else {
-                    dispatch(fetchProductsFailure('Invalid data format')); // Xử lý dữ liệu không hợp lệ
+                    dispatch(fetchFailure('Invalid data format')); // Xử lý dữ liệu không hợp lệ
                 }
                 return Promise.resolve();
             })
             .catch((error) => {
                 const errorMsg = error.message;
-                dispatch(fetchProductsFailure(errorMsg));
+                dispatch(fetchFailure(errorMsg));
+            })
+            .finally(() => {
+                dispatch(setLoadingState(loadingKey, false));
             });
     };
 };
 
 export const fetchSearchProducts = (value) => {
     return (dispatch) => {
+        const loadingKey = 'fetchSearchProducts';
+        dispatch(setLoadingState(loadingKey, true));
+
         return axios
             .get(`http://localhost:4000/api/data/products/search?productName=${value}`)
             .then((response) => {
@@ -148,40 +170,45 @@ export const fetchSearchProducts = (value) => {
                     // Kiểm tra dữ liệu trả về có phải là mảng không
                     dispatch(searchProducts(products));
                 } else {
-                    dispatch(fetchProductsFailure('Invalid data format')); // Xử lý dữ liệu không hợp lệ
+                    dispatch(fetchFailure('Invalid data format')); // Xử lý dữ liệu không hợp lệ
                 }
                 return Promise.resolve();
             })
             .catch((error) => {
                 const errorMsg = error.message;
-                dispatch(fetchProductsFailure(errorMsg));
+                dispatch(fetchFailure(errorMsg));
+            })
+            .finally(() => {
+                dispatch(setLoadingState(loadingKey, false));
             });
     };
 };
 
 export const fetchDetailProducts = (id) => {
     return (dispatch) => {
+        const loadingKey = 'fetchDetailProducts';
+        dispatch(setLoadingState(loadingKey, true));
+
         return axios
             .get(`http://localhost:4000/api/data/products/details?id=${id}`)
             .then((response) => {
                 const products = response.data;
-                if (Array.isArray(products)) {
-                    // Kiểm tra dữ liệu trả về có phải là mảng không
-                    dispatch(detailProduct(products));
-                } else {
-                    dispatch(fetchProductsFailure('Invalid data format')); // Xử lý dữ liệu không hợp lệ
-                }
-                return Promise.resolve();
+                dispatch(detailProduct(products));
             })
             .catch((error) => {
                 const errorMsg = error.message;
-                dispatch(fetchProductsFailure(errorMsg));
+                dispatch(fetchFailure(errorMsg));
+            })
+            .finally(() => {
+                dispatch(setLoadingState(loadingKey, false));
             });
     };
 };
 
 export const fetchAllDetailProducts = () => {
     return (dispatch) => {
+        const loadingKey = 'fetchAllDetailProducts';
+        dispatch(setLoadingState(loadingKey, true));
         return axios
             .get(`http://localhost:4000/api/data/allDetailProducts`, { withCredentials: true })
             .then((response) => {
@@ -191,11 +218,14 @@ export const fetchAllDetailProducts = () => {
                     // Kiểm tra dữ liệu trả về có phải là mảng không
                     dispatch(allDetailProducts(products));
                 } else {
-                    dispatch(fetchProductsFailure('Invalid data format')); // Xử lý dữ liệu không hợp lệ
+                    dispatch(fetchFailure('Invalid data format')); // Xử lý dữ liệu không hợp lệ
                 }
             })
             .catch((error) => {
                 console.log(error);
+            })
+            .finally(() => {
+                dispatch(setLoadingState(loadingKey, false));
             });
     };
 };
@@ -234,14 +264,9 @@ export const fetchUpdateProduct = (data) => {
 };
 
 export const fetchDeleteProduct = (id) => {
-    return (dispatch) => {
+    return () => {
         return axios
-            .delete('http://localhost:4000/api/data/product', {
-                withCredentials: true, // Cho phép axios gửi cookies cùng với request
-                data: {
-                    id, // Gửi dữ liệu id trong phần body của yêu cầu
-                },
-            })
+            .patch(`http://localhost:4000/api/data/product?id=${id}`, undefined, { withCredentials: true })
             .then((response) => {
                 Toast.success(response.data.message);
                 return Promise.resolve();
@@ -250,6 +275,57 @@ export const fetchDeleteProduct = (id) => {
                 const errorMsg = error.response?.data?.message || error.message;
                 console.log(error);
                 Toast.error(errorMsg);
+            });
+    };
+};
+
+export const fetchGetVariation = (id) => {
+    return (dispatch) => {
+        const loadingKey = 'fetchGetVariation';
+        dispatch(setLoadingState(loadingKey, true));
+
+        return axios
+            .get(`http://localhost:4000/api/data/variations?id=${id}`)
+            .then((response) => {
+                const data = response.data;
+                dispatch(getVariationProduct(data));
+            })
+            .catch((error) => {
+                const errorMsg = error.response?.data?.message || error.message;
+                console.log(error);
+                Toast.error(errorMsg);
+                throw error;
+            })
+            .finally(() => {
+                dispatch(setLoadingState(loadingKey, false));
+            });
+    };
+};
+
+export const fetchAddVariation = (data) => {
+    return () => {
+        return axios
+            .post('http://localhost:4000/api/data/variations', data, { withCredentials: true })
+            .then((response) => Toast.success(response.data.message))
+            .catch((error) => {
+                const errorMsg = error.response?.data?.message || error.message;
+                console.log(error);
+                Toast.error(errorMsg);
+                throw error;
+            });
+    };
+};
+
+export const fetchDeleteVariation = (id) => {
+    return () => {
+        return axios
+            .delete(`http://localhost:4000/api/data/variations?id=${id}`, { withCredentials: true })
+            .then((response) => Toast.success(response.data.message))
+            .catch((error) => {
+                const errorMsg = error.response?.data?.message || error.message;
+                console.log(error);
+                Toast.error(errorMsg);
+                throw error;
             });
     };
 };

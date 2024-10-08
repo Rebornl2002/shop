@@ -1,9 +1,10 @@
 import React from 'react';
 import ImageCell from './ImageCell';
-import { Button } from '@mui/material';
+import { Button, IconButton } from '@mui/material';
+import { Delete, Edit } from '@mui/icons-material';
 import { formattedPrice, formatDateString } from '@/calculate/calculate';
 
-export const productColumns = (handleEdit, handleDelete) => [
+export const productColumns = (handleEdit, handleDelete, handleShowDetails, handleOpenModelDialog) => [
     {
         field: 'imgSrc',
         headerName: 'Hình ảnh',
@@ -21,10 +22,6 @@ export const productColumns = (handleEdit, handleDelete) => [
         },
     },
     { field: 'percentDiscount', headerName: '% giảm', flex: 2 },
-    { field: 'origin', headerName: 'Xuất xứ', flex: 2 },
-    { field: 'trademark', headerName: 'Thương hiệu', flex: 2 },
-    { field: 'quantityInStock', headerName: 'Số lượng', flex: 2 },
-    { field: 'expiry', headerName: 'HSD', flex: 2 },
     {
         field: 'edit',
         headerName: 'Sửa',
@@ -44,6 +41,26 @@ export const productColumns = (handleEdit, handleDelete) => [
         renderCell: (params) => (
             <Button onClick={() => handleDelete(params.row.id)} color="secondary" variant="outlined" size="small">
                 Xóa
+            </Button>
+        ),
+    },
+    {
+        field: 'actions',
+        headerName: 'Chi tiết',
+        flex: 2,
+        renderCell: (params) => (
+            <Button onClick={() => handleShowDetails(params.row)} color="success" variant="outlined" size="small">
+                Chi tiết
+            </Button>
+        ),
+    },
+    {
+        field: 'model',
+        headerName: 'Mẫu mã',
+        flex: 2,
+        renderCell: (params) => (
+            <Button onClick={() => handleOpenModelDialog(params.row)} color="success" variant="outlined" size="small">
+                Mẫu
             </Button>
         ),
     },
@@ -139,6 +156,33 @@ export const orderColumns = (handleShowDetails) => [
             <Button variant="contained" onClick={() => handleShowDetails(params.row)}>
                 Chi tiết
             </Button>
+        ),
+    },
+];
+
+export const variationTable = (handleOpenEditDialog, handleDeleteModel) => [
+    {
+        field: 'imgSrc',
+        headerName: 'Hình ảnh',
+        flex: 1,
+        renderCell: (params) => <ImageCell {...params} />,
+    },
+    { field: 'description', headerName: 'Mô tả', flex: 1 },
+    { field: 'price', headerName: 'Giá', width: 100, type: 'number', flex: 1 },
+    { field: 'stock', headerName: 'Số lượng', flex: 1, type: 'number' },
+    {
+        field: 'actions',
+        headerName: 'Hành động',
+        flex: 1,
+        renderCell: (params) => (
+            <>
+                <IconButton onClick={() => handleOpenEditDialog(params.row)} size="small">
+                    <Edit />
+                </IconButton>
+                <IconButton onClick={() => handleDeleteModel(params.row.id)} size="small" color="secondary">
+                    <Delete />
+                </IconButton>
+            </>
         ),
     },
 ];

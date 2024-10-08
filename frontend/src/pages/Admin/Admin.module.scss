@@ -4,101 +4,21 @@
 }
 
 .container {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.sidebar {
-    align-self: flex-start;
-    margin-top: 40px;
-    width: 16%;
-    height: 100%;
-}
-
-.management-list {
-    list-style: none;
-}
-
-.management-item {
-    font-size: 1.6rem;
-    padding: 4px 0px;
-
-    &:hover {
-        cursor: pointer;
-    }
-}
-
-.management-icon {
-    padding-right: 6px;
-    color: transparent;
-}
-
-.active {
-    color: var(--primary);
-
-    .management-icon {
-        color: var(--primary);
-    }
-}
-
-.main {
-    flex: 1;
-    padding-right: 4px;
-}
-
-.chart-title {
-    font-size: 2rem;
-    text-transform: uppercase;
-    font-weight: 600;
-    margin: 16px 0;
-    color: var(--primary);
-}
-
-.month-selector,
-.year-selector {
-    margin-bottom: 1rem;
-}
-
-.month-input,
-.year-input {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
     width: 100%;
 }
 
 :global {
-    .react-datepicker {
-        position: absolute !important;
-        width: 400px;
-        right: 0;
-        top: 0;
-        transform: translateX(50%);
-        font-size: 1rem;
+    .custom-tab {
+        .nav-link {
+            color: var(--black); // Màu chữ của tab chưa chọn
 
-        &__month-container {
-            width: 100%;
-        }
+            &.active {
+                color: var(--primary) !important; // Màu chữ của tab đã chọn
+            }
 
-        &__month-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 1.2rem;
-        }
-
-        &__month-text {
-            flex: 1;
-        }
-
-        &__year-wrapper {
-            max-width: none !important;
-        }
-
-        &__year-text {
-            width: 22% !important;
-            font-size: 1.2rem;
+            &:hover {
+                color: var(--primary); // Màu chữ khi di chuột qua tab
+            }
         }
     }
 }

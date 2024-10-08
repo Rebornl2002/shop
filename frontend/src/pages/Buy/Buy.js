@@ -103,10 +103,10 @@ function Buy() {
                 };
 
                 const filteredProduct = buyProduct.map((item) => ({
-                    id: item.id,
+                    productId: item.productId,
                     quantity: item.quantity,
+                    variationId: item.variationId,
                 }));
-                console.log(filteredProduct);
 
                 await dispatch(fetchAddOrder(orderData, filteredProduct));
                 localStorage.removeItem('productToPurchase');
@@ -188,9 +188,7 @@ function Buy() {
 
                                 <div className={cx('unit-price')}>
                                     <span className={cx('promotional-price')}>
-                                        {formattedPrice(
-                                            handleCalculatePrice(product.price, product.percentDiscount, 1),
-                                        )}
+                                        {handleCalculatePrice(product.price, product.percentDiscount, 1)}
                                     </span>
                                 </div>
                                 <div className={cx('quantity')}>
@@ -198,13 +196,7 @@ function Buy() {
                                 </div>
                                 <div className={cx('price')}>
                                     <span>
-                                        {formattedPrice(
-                                            handleCalculatePrice(
-                                                product.price,
-                                                product.percentDiscount,
-                                                product.quantity,
-                                            ),
-                                        )}
+                                        {handleCalculatePrice(product.price, product.percentDiscount, product.quantity)}
                                     </span>
                                 </div>
                             </div>

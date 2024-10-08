@@ -19,10 +19,20 @@ async function getCartData(req, res) {
 
         // Truy vấn dữ liệu từ bảng cart và lấy thông tin sản phẩm từ bảng products
         const result = await sql.query`
-            SELECT carts.id, carts.username, carts.quantity, products.name, products.price, products.imgSrc, products.percentDiscount
-            FROM carts
-            JOIN products ON carts.id = products.id
-            WHERE carts.username = ${username}
+           SELECT c.username,
+                   c.id AS productId,
+                   c.quantity,
+                   c.variationId,
+                   p.name,
+                   p.percentDiscount,
+                   pv.price,
+                   pv.imgSrc,
+                   pv.description,
+                   pv.stock
+            FROM carts c
+            JOIN products p ON c.id = p.id
+            JOIN productVariations pv ON c.variationId = pv.variationId
+            WHERE c.username = ${username}
         `;
         const products = result.recordset.map((product) => {
             // Chuyển đổi dữ liệu `imgSrc` thành base64
@@ -49,9 +59,9 @@ async function addToCart(req, res) {
         return res.status(401).json({ message: 'Token không hợp lệ!' });
     }
 
-    const { id, quantity } = req.body;
+    const { id, quantity, variationId } = req.body;
 
-    if (!id || !quantity || quantity <= 0) {
+    if (!id || !quantity || !variationId || quantity <= 0) {
         return res.status(400).json({ message: 'Dữ liệu không hợp lệ!' });
     }
 
@@ -70,9 +80,15 @@ async function addToCart(req, res) {
             return res.status(404).json({ message: 'Sản phẩm không tồn tại!' });
         }
 
+        const variationProduct = await sql.query`SELECT * FROM productVariations WHERE variationId = ${variationId}`;
+
+        if (variationProduct.recordset.length === 0) {
+            return res.status(404).json({ message: 'Mẫu mã không tồn tại!' });
+        }
+
         // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
         const cartCheckResult = await sql.query`
-            SELECT * FROM carts WHERE username = ${username} AND id = ${id}
+            SELECT * FROM carts WHERE username = ${username} AND id = ${id} AND variationId = ${variationId} 
         `;
 
         if (cartCheckResult.recordset.length > 0) {
@@ -81,8 +97,8 @@ async function addToCart(req, res) {
 
         // Thêm sản phẩm vào bảng cart
         const insertResult = await sql.query`
-            INSERT INTO carts (username, id, quantity)
-            VALUES (${username}, ${id}, ${quantity})
+            INSERT INTO carts (username, id, quantity, variationId)
+            VALUES (${username}, ${id}, ${quantity}, ${variationId})
         `;
 
         if (insertResult.rowsAffected.length > 0) {
@@ -102,9 +118,9 @@ async function updateCartQuantity(req, res) {
         return res.status(401).json({ message: 'Token không hợp lệ!' });
     }
 
-    const { id, quantity } = req.body;
+    const { productId, quantity, variationId } = req.body;
 
-    if (!id || !quantity || quantity <= 0) {
+    if (!productId || !quantity || quantity <= 0) {
         return res.status(400).json({ message: 'Dữ liệu không hợp lệ!' });
     }
 
@@ -117,17 +133,23 @@ async function updateCartQuantity(req, res) {
         await connectToDatabase();
 
         // Kiểm tra sản phẩm có tồn tại trong bảng products không
-        const productResult = await sql.query`SELECT * FROM products WHERE id = ${id}`;
+        const productResult = await sql.query`SELECT * FROM products WHERE id = ${productId}`;
 
         if (productResult.recordset.length === 0) {
             return res.status(404).json({ message: 'Sản phẩm không tồn tại!' });
+        }
+
+        const variationResult = await sql.query`SELECT * FROM productvariations WHERE variationId = ${variationId}`;
+
+        if (variationResult.recordset.length === 0) {
+            return res.status(404).json({ message: 'Mẫu mã không tồn tại!' });
         }
 
         // Cập nhật số lượng sản phẩm trong giỏ hàng
         const updateResult = await sql.query`
             UPDATE carts
             SET quantity = ${quantity}
-            WHERE username = ${username} AND id = ${id}
+            WHERE username = ${username} AND id = ${productId} AND variationId = ${variationId}
         `;
 
         if (updateResult.rowsAffected.length > 0) {
@@ -147,11 +169,16 @@ async function deleteCart(req, res) {
         return res.status(401).json({ message: 'Không có token!' });
     }
 
-    const { id } = req.body; // Giả sử id có thể là một chuỗi hoặc một mảng
+    const id = req.body; // Dữ liệu có thể là một mảng hoặc đối tượng
+    console.log(id);
 
-    if (!id || (typeof id !== 'number' && !Array.isArray(id))) {
+    // Kiểm tra dữ liệu đầu vào
+    if (!id || typeof id !== 'object') {
         return res.status(400).json({ message: 'Dữ liệu không hợp lệ!' });
     }
+
+    // Chuyển đổi dữ liệu thành mảng nếu là một đối tượng
+    const ids = Array.isArray(id) ? id : [id];
 
     try {
         // Xác thực token JWT
@@ -161,34 +188,16 @@ async function deleteCart(req, res) {
         // Kết nối đến cơ sở dữ liệu
         await connectToDatabase();
 
-        // Hàm để kiểm tra sự tồn tại của sản phẩm
-        async function productExists(id) {
-            const productResult = await sql.query`SELECT * FROM products WHERE id = ${id}`;
-            return productResult.recordset.length > 0;
-        }
-
         // Hàm để xóa sản phẩm khỏi giỏ hàng
-        async function deleteProduct(id) {
+        async function deleteProduct(productId, variationId) {
             await sql.query`
-                DELETE FROM carts WHERE username = ${username} AND id = ${id}
+                DELETE FROM carts WHERE username = ${username} AND id = ${productId} AND variationId = ${variationId}
             `;
         }
 
         // Kiểm tra và xóa sản phẩm
-        if (typeof id === 'number') {
-            if (!(await productExists(id))) {
-                return res.status(404).json({ message: `Sản phẩm với mã ${id} không tồn tại!` });
-            }
-            await deleteProduct(id);
-        } else if (Array.isArray(id)) {
-            for (const sp of id) {
-                if (!(await productExists(sp))) {
-                    return res.status(404).json({ message: `Sản phẩm với mã ${sp} không tồn tại!` });
-                }
-            }
-            for (const sp of id) {
-                await deleteProduct(sp);
-            }
+        for (const { productId, variationId } of ids) {
+            await deleteProduct(productId, variationId);
         }
 
         return res.status(200).json({ message: 'Xóa sản phẩm khỏi giỏ hàng thành công!' });

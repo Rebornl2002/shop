@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyledDataGrid } from './ProductTableStyles';
 import { orderColumns } from './columns';
 import { Box } from '@mui/material';
-import ViewDialog from './ViewDialog'; // Import hộp thoại chi tiết
+import ViewDialog from './ViewDialog';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchGetAllOrder } from '@/actions/orderActions';
 

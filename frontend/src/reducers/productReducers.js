@@ -1,8 +1,7 @@
 // reducers/userReducer.js
 import {
-    FETCH_PRODUCTS_REQUEST,
-    FETCH_PRODUCTS_SUCCESS,
-    FETCH_PRODUCTS_FAILURE,
+    FETCH_PRODUCTS,
+    FETCH_FAILURE,
     SELECT_PRODUCT,
     SEARCH_PRODUCTS,
     DETAIL_PRODUCT,
@@ -11,29 +10,35 @@ import {
     PRODUCT_T0_PURCHASE,
     HAS_MORE_PRODUCTS,
     REFRESH_PRODUCT,
+    VARIATION_PRODUCT,
+    SET_LOADING_STATE,
 } from '../actions/productActions.js';
 
 const initialState = {
-    loading: false,
+    loadingStates: {},
     products: [],
     currentPage: 1,
     hasMore: true,
     discountProducts: [],
     searchs: [],
-    details: [],
+    details: {},
     allDetails: [],
+    variations: [],
     productToPurchase: JSON.parse(localStorage.getItem('productToPurchase')) || [],
     error: '',
 };
 
 const productReducer = (state = initialState, action) => {
     switch (action.type) {
-        case FETCH_PRODUCTS_REQUEST:
+        case SET_LOADING_STATE:
             return {
                 ...state,
-                loading: true,
+                loadingStates: {
+                    ...state.loadingStates,
+                    [action.payload.key]: action.payload.isLoading,
+                },
             };
-        case FETCH_PRODUCTS_SUCCESS:
+        case FETCH_PRODUCTS:
             return {
                 ...state,
                 loading: false,
@@ -41,7 +46,7 @@ const productReducer = (state = initialState, action) => {
                 currentPage: state.currentPage + 1,
                 error: '',
             };
-        case FETCH_PRODUCTS_FAILURE:
+        case FETCH_FAILURE:
             return {
                 ...state,
                 loading: false,
@@ -88,6 +93,11 @@ const productReducer = (state = initialState, action) => {
                 ...state,
                 products: [],
                 currentPage: 1,
+            };
+        case VARIATION_PRODUCT:
+            return {
+                ...state,
+                variations: action.payload,
             };
         default:
             return state;

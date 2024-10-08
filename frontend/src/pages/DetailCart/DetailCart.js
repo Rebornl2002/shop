@@ -23,9 +23,9 @@ function DetailCart() {
     const [status, setStatus] = useState(false);
     const [statusDeleteSelecteds, setStatusDeleteSelecteds] = useState(false);
 
-    const handleUpdateQuantity = (id, quantity) => {
-        if (quantity !== 0) {
-            dispatch(updateCartQuantity(id, quantity))
+    const handleUpdateQuantity = (productId, variationId, quantity) => {
+        if (quantity > 0) {
+            dispatch(updateCartQuantity(productId, variationId, quantity))
                 .then(() => {
                     return dispatch(getCartData());
                 })
@@ -37,9 +37,13 @@ function DetailCart() {
 
     const handleCheckboxChange = (product) => {
         setSelectedProducts((prevSelected) => {
-            const isSelected = prevSelected.some((item) => item.id === product.id);
+            const isSelected = prevSelected.some(
+                (item) => item.productId === product.productId && item.variationId === product.variationId,
+            );
             const updatedSelected = isSelected
-                ? prevSelected.filter((item) => item.id !== product.id)
+                ? prevSelected.filter(
+                      (item) => item.productId !== product.productId || item.variationId !== product.variationId,
+                  )
                 : [...prevSelected, product];
 
             setSelectAll(updatedSelected.length === data.length);
@@ -79,6 +83,7 @@ function DetailCart() {
     };
 
     const handleDeleteCart = (id) => {
+        console.log(id);
         dispatch(deleteCart(id))
             .then(() => {
                 return dispatch(getCartData());
@@ -129,9 +134,14 @@ function DetailCart() {
                                     id={index}
                                     type="checkbox"
                                     className={cx('tick-product')}
-                                    checked={selectedProducts.some((item) => item.id === product.id)}
+                                    checked={selectedProducts.some(
+                                        (item) =>
+                                            item.productId === product.productId &&
+                                            item.variationId === product.variationId,
+                                    )}
                                     onChange={() => handleCheckboxChange(product)}
                                 />
+
                                 <label htmlFor={index}></label>
                                 <div className={cx('product-summary')}>
                                     <div
@@ -147,33 +157,37 @@ function DetailCart() {
                                 <div className={cx('unit-price')}>
                                     <span className={cx('cost')}>{formattedPrice(product.price)}</span>
                                     <span className={cx('promotional-price')}>
-                                        {formattedPrice(
-                                            handleCalculatePrice(product.price, product.percentDiscount, 1),
-                                        )}
+                                        {handleCalculatePrice(product.price, product.percentDiscount, 1)}
                                     </span>
                                 </div>
                                 <div className={cx('quantity')}>
                                     <FontAwesomeIcon
                                         icon={faMinus}
                                         className={cx('icon', { 'icon-ban': product.quantity === 1 })}
-                                        onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
+                                        onClick={() =>
+                                            handleUpdateQuantity(
+                                                product.productId,
+                                                product.variationId,
+                                                product.quantity - 1,
+                                            )
+                                        }
                                     />
                                     <span>{product.quantity}</span>
                                     <FontAwesomeIcon
                                         icon={faPlus}
                                         className={cx('icon')}
-                                        onClick={() => handleUpdateQuantity(product.id, product.quantity + 1)}
+                                        onClick={() =>
+                                            handleUpdateQuantity(
+                                                product.productId,
+                                                product.variationId,
+                                                product.quantity + 1,
+                                            )
+                                        }
                                     />
                                 </div>
                                 <div className={cx('price')}>
                                     <span>
-                                        {formattedPrice(
-                                            handleCalculatePrice(
-                                                product.price,
-                                                product.percentDiscount,
-                                                product.quantity,
-                                            ),
-                                        )}
+                                        {handleCalculatePrice(product.price, product.percentDiscount, product.quantity)}
                                     </span>
                                 </div>
                                 <div className={cx('operation')}>

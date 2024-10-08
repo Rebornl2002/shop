@@ -8,15 +8,21 @@ import {
 } from '@/actions/productActions';
 import { StyledDataGrid } from './ProductTableStyles';
 import EditDialog from './EditDialog';
+import ViewDialog from './ViewDialog';
 import { productColumns } from './columns';
 import { Button, Box } from '@mui/material';
+import ModelDialog from './ModelDialog';
 
 const ProductTable = () => {
     const [rows, setRows] = useState([]);
     const [open, setOpen] = useState(false);
     const [currentProduct, setCurrentProduct] = useState(null);
+    const [selectedProductForModels, setSelectedProductForModels] = useState(null); // Sản phẩm hiện tại cho quản lý mẫu mã
     const dispatch = useDispatch();
     const data = useSelector((state) => state.product.allDetails);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [openModelDialog, setOpenModelDialog] = useState(false);
 
     useEffect(() => {
         dispatch(fetchAllDetailProducts());
@@ -37,8 +43,7 @@ const ProductTable = () => {
         async (id) => {
             try {
                 await dispatch(fetchDeleteProduct(id));
-
-                await dispatch(fetchAllDetailProducts(id));
+                await dispatch(fetchAllDetailProducts());
             } catch (error) {
                 console.error('Xóa không thành công', error);
             }
@@ -46,24 +51,28 @@ const ProductTable = () => {
         [dispatch],
     );
 
-    function handleClose() {
+    const handleClose = () => {
         setOpen(false);
-    }
+    };
 
     const handleSave = async (data) => {
         const newData = { id: currentProduct.id, ...data };
         try {
-            // Gửi yêu cầu cập nhật sản phẩm
             await dispatch(fetchUpdateProduct(newData));
-
-            // Nếu cập nhật thành công, gửi yêu cầu lấy tất cả sản phẩm
             await dispatch(fetchAllDetailProducts());
-
-            // Đóng hộp thoại sau khi hoàn tất
             setOpen(false);
         } catch (error) {
-            // Xử lý lỗi (nếu có)
             console.error('Error updating product:', error);
+        }
+    };
+
+    const handleSaveNew = async (currentProduct) => {
+        try {
+            await dispatch(fetchAddProduct(currentProduct));
+            await dispatch(fetchAllDetailProducts());
+            setOpen(false);
+        } catch (error) {
+            console.error('Error adding product:', error);
         }
     };
 
@@ -71,6 +80,7 @@ const ProductTable = () => {
         setCurrentProduct({
             id: '',
             name: '',
+            description: '',
             price: '',
             percentDiscount: '',
             origin: '',
@@ -81,20 +91,29 @@ const ProductTable = () => {
         setOpen(true);
     };
 
-    const handleSaveNew = async (currentProduct) => {
-        try {
-            await dispatch(fetchAddProduct(currentProduct));
+    const handleShowDetails = (order) => {
+        setSelectedOrder(order);
+        setOpenDialog(true);
+    };
 
-            await dispatch(fetchAllDetailProducts());
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+        setSelectedOrder(null);
+    };
 
-            setOpen(false);
-        } catch (error) {
-            console.error('Error updating product:', error);
-        }
+    const handleOpenModelDialog = (product) => {
+        setSelectedProductForModels(product);
+        setOpenModelDialog(true);
+    };
+
+    const handleCloseModelDialog = () => {
+        setOpenModelDialog(false);
+        setSelectedProductForModels(null);
     };
 
     const productFields = [
         { label: 'Tên sản phẩm', name: 'name', required: true },
+        { label: 'Mô tả', name: 'description', required: true },
         { label: 'Giá', name: 'price', type: 'number', required: true, validate: (value) => value > 0 },
         {
             label: 'Phần trăm giảm giá',
@@ -110,18 +129,32 @@ const ProductTable = () => {
 
     return (
         <Box sx={{ height: 400, width: '100%', marginBottom: '60px' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px', marginTop: '10px' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', marginTop: '10px' }}>
                 <Button onClick={handleAddNew} variant="contained" color="primary">
                     Thêm Sản Phẩm
                 </Button>
             </Box>
             <StyledDataGrid
                 rows={rows}
-                columns={productColumns(handleEdit, handleDelete)}
+                columns={productColumns(handleEdit, handleDelete, handleShowDetails, handleOpenModelDialog)}
                 pageSize={5}
                 rowsPerPageOptions={[5]}
                 experimentalFeatures={{ newEditingApi: true }}
             />
+            {selectedOrder && (
+                <ViewDialog
+                    open={openDialog}
+                    onClose={handleCloseDialog}
+                    product={selectedOrder}
+                    fields={[
+                        { label: 'Xuất xứ', name: 'origin' },
+                        { label: 'Thương hiệu', name: 'trademark' },
+                        { label: 'Số lượng', name: 'quantityInStock' },
+                        { label: 'HSD', name: 'expiry' },
+                    ]}
+                    title="Chi tiết sản phẩm"
+                />
+            )}
             <EditDialog
                 open={open}
                 onClose={handleClose}
@@ -131,6 +164,15 @@ const ProductTable = () => {
                 title={currentProduct?.id ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}
                 onImg={true}
             />
+
+            {/* Dialog hiển thị mẫu mã của sản phẩm được chọn */}
+            {selectedProductForModels && (
+                <ModelDialog
+                    open={openModelDialog}
+                    onClose={handleCloseModelDialog}
+                    product={selectedProductForModels} // Truyền sản phẩm hiện tại vào ModelDialog
+                />
+            )}
         </Box>
     );
 };

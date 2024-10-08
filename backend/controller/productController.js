@@ -20,8 +20,21 @@ async function getAllProducts(req, res) {
 
         // Truy vấn để lấy dữ liệu sản phẩm theo trang và giới hạn
         const result = await sql.query`
-            SELECT * FROM products
-            ORDER BY id
+            SELECT pv.description, 
+                   pv.price, 
+                   pv.stock, 
+                   pv.imgSrc, 
+                   p.name, 
+                   p.percentDiscount,
+                   p.id
+            FROM productVariations pv
+            JOIN products p ON pv.productId = p.id
+            WHERE pv.variationId = (
+                SELECT MIN(variationId) 
+                FROM productVariations 
+                WHERE productId = pv.productId
+            )
+            ORDER BY p.id
             OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY
         `;
 
@@ -87,7 +100,7 @@ async function getSearchProducts(req, res) {
             result = await sql.query`
                 SELECT *
                 FROM products
-                WHERE name LIKE ${searchPattern}
+                WHERE isDeleted = 0 AND name LIKE ${searchPattern}
             `;
         } else {
             // Nếu không có tên sản phẩm được cung cấp, lấy tất cả sản phẩm
@@ -124,78 +137,13 @@ async function getDetailProduct(req, res) {
                 d.origin
             FROM products p
             JOIN detailProducts d ON p.id = d.id
-            WHERE d.id = ${id}   
+            WHERE p.isDeleted = 0 AND d.id = ${id}   
         `;
-        // SELECT dp.*, p.*
-        //     FROM detailProducts dp
-        //     JOIN products p ON dp.id = p.id
-        //     WHERE dp.id = ${id}
 
-        // Xử lý dữ liệu để chuyển đổi trường `imgSrc` thành base64
-        const products = result.recordset.map((product) => {
-            // Chuyển đổi dữ liệu `imgSrc` thành base64
-            const base64ImgSrc = product.imgSrc ? product.imgSrc.toString('base64') : null;
-            return {
-                ...product,
-                imgSrc: base64ImgSrc ? `data:image/png;base64,${base64ImgSrc}` : null,
-            };
-        });
-
-        res.json(products);
+        res.json(result.recordset[0]);
     } catch (err) {
         console.error('Database connection failed:', err);
         res.status(500).send('Database connection failed');
-    }
-}
-
-async function getAllDetailProducts(req, res) {
-    const token = req.cookies.authToken;
-    if (!token) {
-        return res.status(401).json({ message: 'Token không hợp lệ!' });
-    }
-
-    try {
-        // Xác thực token JWT
-        const decoded = jwt.verify(token, secretKey);
-        const role = decoded.role;
-
-        if (role === 'admin' || role === 'superAdmin') {
-            // Kết nối đến cơ sở dữ liệu
-            await connectToDatabase();
-
-            // Truy vấn dữ liệu từ bảng products và detailProducts với alias và ký tự đại diệnP
-            const result = await sql.query`
-                SELECT 
-                    p.*, 
-                    d.trademark, 
-                    d.expiry, 
-                    d.quantityInStock, 
-                    d.origin
-                FROM products p
-                JOIN detailProducts d ON p.id = d.id
-            `;
-
-            // Xử lý dữ liệu để chuyển đổi trường `imgSrc` thành base64
-            const products = result.recordset.map((product) => {
-                // Chuyển đổi dữ liệu `imgSrc` thành base64
-                const base64ImgSrc = product.imgSrc ? product.imgSrc.toString('base64') : null;
-                return {
-                    ...product,
-                    imgSrc: base64ImgSrc ? `data:image/png;base64,${base64ImgSrc}` : null,
-                };
-            });
-
-            // Trả về dữ liệu từ bảng products và detailProducts trong phản hồi
-            return res.status(200).json(products);
-        } else {
-            return res.status(403).json({ message: 'Không có quyền truy cập!' });
-        }
-    } catch (error) {
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({ message: 'Phiên đăng nhập đã hết hạn!' });
-        }
-        console.error(error);
-        return res.status(500).json({ message: 'Lỗi khi lấy dữ liệu từ bảng products!' });
     }
 }
 
@@ -220,7 +168,8 @@ async function addProduct(req, res) {
 
             try {
                 // Nhận dữ liệu sản phẩm từ req.body
-                let { name, price, percentDiscount, origin, expiry, quantityInStock, imgSrc, trademark } = req.body;
+                let { name, price, percentDiscount, origin, expiry, quantityInStock, imgSrc, trademark, description } =
+                    req.body;
 
                 origin = toNullIfEmpty(origin);
                 expiry = toNullIfEmpty(expiry);
@@ -237,9 +186,9 @@ async function addProduct(req, res) {
 
                 // Thêm sản phẩm mới vào bảng products và lấy ID
                 const productResult = await transaction.request().query`
-                    INSERT INTO products (name, price, percentDiscount, imgSrc)
+                    INSERT INTO products (name, percentDiscount)
                     OUTPUT inserted.id
-                    VALUES (${name}, ${price}, ${percentDiscount}, ${imgSrcBuffer})
+                    VALUES (${name}, ${percentDiscount})
                 `;
 
                 const productId = productResult.recordset[0].id;
@@ -248,6 +197,11 @@ async function addProduct(req, res) {
                 await transaction.request().query`
                     INSERT INTO detailProducts (id, origin, expiry, quantityInStock, trademark)
                     VALUES (${productId}, ${origin}, ${expiry}, ${quantityInStock}, ${trademark})
+                `;
+
+                await transaction.request().query`
+                    INSERT INTO productVariations (productId, description, price, stock, imgSrc)
+                    VALUES (${productId}, ${description}, ${price}, ${quantityInStock}, ${imgSrcBuffer})
                 `;
 
                 // Commit giao dịch nếu mọi thứ thành công
@@ -372,24 +326,203 @@ async function deleteProduct(req, res) {
 
             try {
                 // Nhận id sản phẩm từ req.body
-                const { id } = req.body;
+                const { id } = req.query;
 
-                // Xóa sản phẩm khỏi bảng detailProducts trước
+                // Cập nhật cột isDeleted thành 1 (đánh dấu là đã xóa)
                 await transaction.request().query`
-                    DELETE FROM detailProducts WHERE id = ${id}
-                `;
-
-                // Xóa sản phẩm khỏi bảng products
-                await transaction.request().query`
-                    DELETE FROM products WHERE id = ${id}
+                    UPDATE products 
+                    SET isDeleted = 1 
+                    WHERE id = ${id}
                 `;
 
                 // Commit giao dịch nếu mọi thứ thành công
                 await transaction.commit();
-                return res.status(200).json({ message: 'Sản phẩm đã được xóa thành công!' });
+                return res.status(200).json({ message: 'Sản phẩm đã được đánh dấu là đã xóa thành công!' });
             } catch (error) {
                 // Rollback giao dịch nếu có lỗi
                 await transaction.rollback();
+                console.error(error);
+                return res.status(500).json({ message: 'Lỗi khi đánh dấu sản phẩm là đã xóa!' });
+            }
+        } else {
+            return res.status(403).json({ message: 'Không có quyền truy cập!' });
+        }
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({ message: 'Phiên đăng nhập đã hết hạn!' });
+        }
+        console.error(error);
+        return res.status(500).json({ message: 'Lỗi khi xử lý yêu cầu!' });
+    }
+}
+
+async function getAllDetailProducts(req, res) {
+    const token = req.cookies.authToken;
+    if (!token) {
+        return res.status(401).json({ message: 'Token không hợp lệ!' });
+    }
+
+    try {
+        // Xác thực token JWT
+        const decoded = jwt.verify(token, secretKey);
+        const role = decoded.role;
+
+        if (role === 'admin' || role === 'superAdmin') {
+            // Kết nối đến cơ sở dữ liệu
+            await connectToDatabase();
+
+            // Truy vấn dữ liệu từ bảng products và detailProducts với alias và ký tự đại diệnP
+            const result = await sql.query`
+                SELECT 
+                    p.*, 
+                    d.trademark, 
+                    d.expiry, 
+                    d.quantityInStock, 
+                    d.origin
+                FROM products p
+                JOIN detailProducts d ON p.id = d.id
+                WHERE p.isDeleted = 0; 
+            `;
+
+            // Xử lý dữ liệu để chuyển đổi trường `imgSrc` thành base64
+            const products = result.recordset.map((product) => {
+                // Chuyển đổi dữ liệu `imgSrc` thành base64
+                const base64ImgSrc = product.imgSrc ? product.imgSrc.toString('base64') : null;
+                return {
+                    ...product,
+                    imgSrc: base64ImgSrc ? `data:image/png;base64,${base64ImgSrc}` : null,
+                };
+            });
+
+            // Trả về dữ liệu từ bảng products và detailProducts trong phản hồi
+            return res.status(200).json(products);
+        } else {
+            return res.status(403).json({ message: 'Không có quyền truy cập!' });
+        }
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({ message: 'Phiên đăng nhập đã hết hạn!' });
+        }
+        console.error(error);
+        return res.status(500).json({ message: 'Lỗi khi lấy dữ liệu từ bảng products!' });
+    }
+}
+
+async function getVariationProduct(req, res) {
+    const { id } = req.query;
+    try {
+        await connectToDatabase();
+        const result = await sql.query`
+            SELECT *
+            FROM productVariations
+            WHERE productId = ${id} AND isDeleted = 0  
+        `;
+
+        // Xử lý dữ liệu để chuyển đổi trường `imgSrc` thành base64
+        const productsVariation = result.recordset.map((product) => {
+            // Chuyển đổi dữ liệu `imgSrc` thành base64
+            const base64ImgSrc = product.imgSrc ? product.imgSrc.toString('base64') : null;
+            return {
+                ...product,
+                imgSrc: base64ImgSrc ? `data:image/png;base64,${base64ImgSrc}` : null,
+            };
+        });
+
+        res.json(productsVariation);
+    } catch (err) {
+        console.error('Database connection failed:', err);
+        res.status(500).send('Database connection failed');
+    }
+}
+
+async function addVariationProduct(req, res) {
+    const token = req.cookies.authToken;
+    if (!token) {
+        return res.status(401).json({ message: 'Token không hợp lệ!' });
+    }
+
+    try {
+        // Xác thực token JWT
+        const decoded = jwt.verify(token, secretKey);
+        const role = decoded.role;
+
+        if (role === 'admin' || role === 'superAdmin') {
+            // Kết nối đến cơ sở dữ liệu
+            await connectToDatabase();
+
+            try {
+                // Nhận dữ liệu sản phẩm từ req.body
+                let { productId, description, price, stock, imgSrc } = req.body;
+
+                // Xử lý chuỗi base64
+                let imgSrcBuffer;
+                if (imgSrc.startsWith('data:image')) {
+                    const base64Data = imgSrc.split(',')[1];
+                    imgSrcBuffer = Buffer.from(base64Data, 'base64');
+                } else {
+                    imgSrcBuffer = Buffer.from(imgSrc, 'base64');
+                }
+
+                await sql.query`
+                    INSERT INTO productVariations ( productId, description, price, imgSrc, stock)
+                    VALUES (${productId}, ${description}, ${price}, ${imgSrcBuffer}, ${stock})
+                `;
+
+                return res.status(201).json({ message: 'Mẫu mã đã được thêm thành công!' });
+            } catch (error) {
+                console.error(error);
+                return res.status(500).json({ message: 'Lỗi khi thêm sản phẩm!' });
+            }
+        } else {
+            return res.status(403).json({ message: 'Không có quyền truy cập!' });
+        }
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({ message: 'Phiên đăng nhập đã hết hạn!' });
+        }
+        console.error(error);
+        return res.status(500).json({ message: 'Lỗi khi thêm sản phẩm!' });
+    }
+}
+
+async function deleteVariationProduct(req, res) {
+    const token = req.cookies.authToken;
+    if (!token) {
+        return res.status(401).json({ message: 'Token không hợp lệ!' });
+    }
+
+    try {
+        // Xác thực token JWT
+        const decoded = jwt.verify(token, secretKey);
+        const role = decoded.role;
+
+        // Chỉ admin hoặc superAdmin mới có quyền xóa sản phẩm
+        if (role === 'admin' || role === 'superAdmin') {
+            // Kết nối đến cơ sở dữ liệu
+            await connectToDatabase();
+
+            try {
+                const { id } = req.query;
+
+                // Kiểm tra xem productId có được cung cấp không
+                if (!id) {
+                    return res.status(400).json({ message: 'Thiếu ID!' });
+                }
+
+                // Thực hiện truy vấn xóa sản phẩm
+                const result = await sql.query`
+                    UPDATE productVariations 
+                    SET isDeleted = 1 
+                    WHERE variationId = ${id}
+                `;
+
+                // Kiểm tra nếu sản phẩm có tồn tại và bị xóa
+                if (result.rowsAffected[0] > 0) {
+                    return res.status(200).json({ message: 'Mẫu mã đã được xóa thành công!' });
+                } else {
+                    return res.status(404).json({ message: 'Không tìm thấy mẫu mã' });
+                }
+            } catch (error) {
                 console.error(error);
                 return res.status(500).json({ message: 'Lỗi khi xóa sản phẩm!' });
             }
@@ -404,7 +537,6 @@ async function deleteProduct(req, res) {
         return res.status(500).json({ message: 'Lỗi khi xóa sản phẩm!' });
     }
 }
-
 module.exports = {
     getAllProducts,
     getSearchProducts,
@@ -414,4 +546,7 @@ module.exports = {
     addProduct,
     updateProduct,
     deleteProduct,
+    getVariationProduct,
+    addVariationProduct,
+    deleteVariationProduct,
 };

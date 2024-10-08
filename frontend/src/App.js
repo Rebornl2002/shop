@@ -6,6 +6,7 @@ import { ToastContainer } from 'react-toastify';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import AdminRoute from './components/AdminRoute/AdminRoute';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
     return (

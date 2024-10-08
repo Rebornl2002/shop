@@ -39,9 +39,15 @@ function Cart({ data }) {
 
     const handleTickProduct = (item) => {
         setSelectedProduct((prevSelected) => {
-            if (prevSelected.some((product) => product.id === item.id)) {
-                // Xóa sản phẩm nếu nó đã tồn tại trong danh sách
-                return prevSelected.filter((product) => product.id !== item.id);
+            if (
+                prevSelected.some(
+                    (product) => product.productId === item.productId && product.variationId === item.variationId,
+                )
+            ) {
+                // Xóa sản phẩm nếu nó đã tồn tại trong danh sách (dựa trên productId và variationId)
+                return prevSelected.filter(
+                    (product) => !(product.productId === item.productId && product.variationId === item.variationId),
+                );
             } else {
                 // Thêm sản phẩm nếu nó chưa tồn tại trong danh sách
                 return [...prevSelected, item];
@@ -49,7 +55,7 @@ function Cart({ data }) {
         });
     };
 
-    const handleBuy = (data) => {
+    const handleBuy = () => {
         if (selectedProduct.length > 0) {
             dispatch(getProductToPurchase(selectedProduct));
             navigate('/buy');
@@ -77,23 +83,24 @@ function Cart({ data }) {
                         <div className={cx('container')}>
                             {data.length > 0 ? (
                                 data.map((item, index) => {
-                                    const isSelected = selectedProduct.some((product) => product.id === item.id);
+                                    const isSelected = selectedProduct.some(
+                                        (product) =>
+                                            product.productId === item.productId &&
+                                            product.variationId === item.variationId,
+                                    );
                                     return (
-                                        <label
-                                            key={index}
-                                            className={cx('product', { selected: isSelected })}
-                                            onClick={() => handleTickProduct(item)}
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                className={cx('tick-product')}
-                                                checked={isSelected}
-                                                readOnly
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                }}
-                                                id="tick"
-                                            />
+                                        <div className={cx('content')} key={index}>
+                                            <label className={cx('product', { selected: isSelected })}>
+                                                <input
+                                                    type="checkbox"
+                                                    className={cx('tick-product')}
+                                                    checked={isSelected}
+                                                    readOnly
+                                                    onChange={() => {
+                                                        handleTickProduct(item);
+                                                    }}
+                                                />
+                                            </label>
 
                                             <div
                                                 className={cx('product-img')}
@@ -106,6 +113,7 @@ function Cart({ data }) {
                                                 <div className={cx('product-title')}>
                                                     {item.name} x {item.quantity}
                                                 </div>
+                                                <div className={cx('product-variation')}>{item.description}</div>
                                                 <div className={cx('product-price')}>
                                                     {handleCalculatePrice(
                                                         item.price,
@@ -113,8 +121,9 @@ function Cart({ data }) {
                                                         item.quantity,
                                                     )}
                                                 </div>
+                                                <div className={cx('delete-cart')}>Xóa</div>
                                             </div>
-                                        </label>
+                                        </div>
                                     );
                                 })
                             ) : (
@@ -126,7 +135,7 @@ function Cart({ data }) {
                             <Link to="/detailCart">
                                 <div className={cx('cart-btn')}>Xem giỏ hàng</div>
                             </Link>
-                            <div className={cx('buy-btn')} onClick={() => handleBuy(selectedProduct)}>
+                            <div className={cx('buy-btn')} onClick={handleBuy}>
                                 Mua ngay
                             </div>
                         </div>

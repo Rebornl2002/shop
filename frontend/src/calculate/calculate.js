@@ -1,9 +1,14 @@
 export const formattedPrice = (price) => {
+    if (price == null || isNaN(price)) {
+        return 'Không xác định'; // Hoặc một giá trị mặc định nào đó
+    }
+
     return price.toLocaleString('vi-VN', {
         style: 'currency',
         currency: 'VND',
     });
 };
+
 export const totalMoney = (price, percentDiscount, quantity) => {
     const salePrice = price - (price * percentDiscount) / 100;
     return quantity === 0 ? salePrice : salePrice * quantity;

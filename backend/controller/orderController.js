@@ -42,6 +42,8 @@ async function addOrder(req, res) {
             // Nhận dữ liệu từ req.body
             const { order, products } = req.body;
 
+            console.log(order, products);
+
             if (!order || !products || products.length === 0) {
                 throw new Error('Dữ liệu đơn hàng hoặc sản phẩm không hợp lệ!');
             }
@@ -56,24 +58,24 @@ async function addOrder(req, res) {
 
             // Thêm chi tiết sản phẩm vào bảng detailOrders
             for (const product of products) {
-                const { id, quantity } = product;
-                if (!id || quantity <= 0) {
+                const { productId, quantity, variationId } = product;
+                if (!productId || !variationId || quantity <= 0) {
                     throw new Error('Thông tin sản phẩm không hợp lệ!');
                 }
 
                 await transaction.request().query`
-                    INSERT INTO detailOrders (orderCode, productID, quantity)
-                    VALUES (${orderCode}, ${id}, ${quantity})
+                    INSERT INTO detailOrders (orderCode, productID, quantity, variationID)
+                    VALUES (${orderCode}, ${productId}, ${quantity}, ${variationId})
                 `;
 
                 await transaction.request().query`
-                    UPDATE detailProducts
-                    SET quantityInStock = quantityInStock - ${quantity}
-                    WHERE id = ${id}
+                    UPDATE productVariations
+                    SET stock = stock - ${quantity}
+                    WHERE variationId = ${variationId}
                 `;
 
                 await transaction.request().query`
-                    DELETE FROM carts WHERE username = ${username} AND id = ${id}
+                    DELETE FROM carts WHERE username = ${username} AND id = ${productId} AND variationId = ${variationId} 
                 `;
             }
 

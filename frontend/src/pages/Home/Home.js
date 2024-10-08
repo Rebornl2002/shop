@@ -3,16 +3,11 @@ import styles from './Home.module.scss';
 import Slide from './Slide';
 import Sell from './Sell';
 import Blog from './Blog';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchBlogs } from '@/actions/blogActions';
-import { fetchDiscountProducts, fetchProducts, getProductToPurchase, selectProduct } from '@/actions/productActions';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMinus, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { addCart, getCartData } from '@/actions/cartActions';
-import { Toast } from '@/components/Toast/Toast';
-import { handleCalculatePrice } from '@/calculate/calculate';
-import { useNavigate } from 'react-router-dom';
+import { fetchDiscountProducts, fetchProducts } from '@/actions/productActions';
+import ProductPopup from './ProductPopup';
 
 const cx = classNames.bind(styles);
 
@@ -27,14 +22,6 @@ function Home() {
     const errorProduct = useSelector((state) => state.product.error);
     const discountProducts = useSelector((state) => state.product.discountProducts);
 
-    const selectedProduct = useSelector((state) => state.product.selectedProduct);
-    const [quantity, setQuantity] = useState(0);
-    const [showProduct, setShowProduct] = useState(false);
-
-    const isLogin = useSelector((state) => state.user.isLoggedIn);
-
-    const navigate = useNavigate();
-
     const hasFetchedRef = useRef(false);
 
     useEffect(() => {
@@ -44,57 +31,7 @@ function Home() {
             dispatch(fetchDiscountProducts());
             hasFetchedRef.current = true;
         }
-    }, [dispatch, currentPage]);
-
-    const handleAddQuantity = () => {
-        setQuantity(quantity + 1);
-    };
-
-    const handleReducedQuantity = () => {
-        if (quantity !== 0) {
-            setQuantity(quantity - 1);
-        }
-    };
-
-    const handleExit = () => {
-        dispatch(selectProduct(undefined));
-    };
-
-    const handleAddCart = () => {
-        if (quantity !== 0) {
-            if (!isLogin) {
-                Toast.error('Vui lòng đăng nhập để thêm sản phẩm ');
-            } else {
-                console.log(selectedProduct.id, quantity);
-                dispatch(addCart(selectedProduct.id, quantity))
-                    .then(() => {
-                        return dispatch(getCartData());
-                    })
-                    .catch((error) => {
-                        console.error('Eror', error);
-                    });
-            }
-        }
-    };
-
-    const handleBuy = () => {
-        if (quantity !== 0) {
-            dispatch(getProductToPurchase([{ ...selectedProduct, quantity: quantity }]));
-            navigate('/buy');
-        }
-    };
-
-    useEffect(() => {
-        let timer;
-        if (selectedProduct !== undefined) {
-            timer = setTimeout(() => {
-                setShowProduct(true); // Hiển thị sản phẩm sau 2 giây
-            }, 100);
-        } else {
-            setShowProduct(false); // Ẩn sản phẩm ngay lập tức
-        }
-        return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc selectedProduct thay đổi
-    }, [selectedProduct]);
+    }, [dispatch]);
 
     const handleMore = () => {
         dispatch(fetchProducts(currentPage));
@@ -103,9 +40,9 @@ function Home() {
     return (
         <div className={cx('wrapper')}>
             <Slide />
-            {discountProducts.length > 0 && (
+            {/* {discountProducts.length > 0 && (
                 <Sell props={discountProducts} title="Đang khuyến mãi" sale={true} type={false} />
-            )}
+            )} */}
             {!loadingProduct && !errorProduct && products.length > 0 && (
                 <Sell
                     props={products}
@@ -118,65 +55,7 @@ function Home() {
                 />
             )}
             {!loadingBlog && !errorBlog && blogs.length > 0 && <Blog props={blogs} />}
-            {selectedProduct !== undefined && (
-                <div className={cx('choose-wrapper', { 'choose-wrapper-active': showProduct })}>
-                    <div className={cx('choose-container')}>
-                        <div
-                            className={cx('img-product')}
-                            style={{
-                                backgroundImage: `url(${selectedProduct.imgSrc})`,
-                            }}
-                        ></div>
-                        <div className={cx('info-product')}>
-                            <div className={cx('name-product')}>{selectedProduct.name}</div>
-                            <div className={cx('price-product')}>
-                                Giá:{' '}
-                                <span style={{ fontWeight: 700 }}>
-                                    {handleCalculatePrice(
-                                        selectedProduct.price,
-                                        selectedProduct.percentDiscount,
-                                        quantity,
-                                    )}
-                                </span>
-                            </div>
-                            <div className={cx('quantity')}>
-                                <span>Số lượng</span>
-                                <div className={cx('quantity-btn')}>
-                                    <FontAwesomeIcon
-                                        icon={faMinus}
-                                        className={cx('quantity-icon', { 'quantity-icon-ban': quantity === 0 })}
-                                        onClick={handleReducedQuantity}
-                                    />
-                                    <span className={cx('quantity-value')}>{quantity}</span>
-                                    <FontAwesomeIcon
-                                        icon={faPlus}
-                                        className={cx('quantity-icon')}
-                                        onClick={handleAddQuantity}
-                                    />
-                                </div>
-                            </div>
-                            <div className={cx('btn')}>
-                                <div
-                                    className={cx('product-btn', { 'product-btn-ban': quantity === 0 })}
-                                    onClick={handleAddCart}
-                                >
-                                    Thêm vào giỏ hàng
-                                </div>
-
-                                <div
-                                    className={cx('product-btn', { 'product-btn-ban': quantity === 0 })}
-                                    onClick={() => handleBuy()}
-                                >
-                                    Mua ngay
-                                </div>
-                            </div>
-                            <div className={cx('exit-btn')} onClick={handleExit}>
-                                <FontAwesomeIcon icon={faXmark} />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ProductPopup />
         </div>
     );
 }

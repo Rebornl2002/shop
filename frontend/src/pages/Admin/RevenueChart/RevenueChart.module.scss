@@ -1,0 +1,55 @@
+.chart-title {
+    font-size: 2rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin: 16px 0;
+    color: var(--primary);
+}
+
+.month-selector,
+.year-selector {
+    margin-bottom: 1rem;
+}
+
+.month-input,
+.year-input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+}
+
+:global {
+    .react-datepicker {
+        position: absolute !important;
+        width: 400px;
+        right: 0;
+        top: 0;
+        transform: translateX(50%);
+        font-size: 1rem;
+
+        &__month-container {
+            width: 100%;
+        }
+
+        &__month-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 1.2rem;
+        }
+
+        &__month-text {
+            flex: 1;
+        }
+
+        &__year-wrapper {
+            max-width: none !important;
+        }
+
+        &__year-text {
+            width: 22% !important;
+            font-size: 1.2rem;
+        }
+    }
+}

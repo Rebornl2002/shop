@@ -88,13 +88,13 @@ export const getCartData = () => {
     };
 };
 
-export const addCart = (id, quantity) => {
+export const addCart = (id, quantity, variationId) => {
     return (dispatch) => {
         dispatch(addCartRequest());
         return axios
             .post(
                 'http://localhost:4000/api/data/carts',
-                { id, quantity },
+                { id, quantity, variationId },
                 {
                     withCredentials: true, // Cho phép axios gửi cookies cùng với request
                 },
@@ -116,12 +116,12 @@ export const addCart = (id, quantity) => {
     };
 };
 
-export const updateCartQuantity = (id, quantity) => {
+export const updateCartQuantity = (productId, variationId, quantity) => {
     return () => {
         return axios
             .patch(
                 'http://localhost:4000/api/data/updateCartQuantity',
-                { id, quantity },
+                { productId, variationId, quantity },
                 {
                     withCredentials: true, // Cho phép axios gửi cookies cùng với request
                 },
@@ -141,9 +141,7 @@ export const deleteCart = (id) => {
         return axios
             .delete('http://localhost:4000/api/data/carts', {
                 withCredentials: true, // Cho phép axios gửi cookies cùng với request
-                data: {
-                    id, // Gửi dữ liệu id trong phần body của yêu cầu
-                },
+                data: Array.isArray(id) ? id : [id],
             })
             .then((response) => {
                 Toast.success(response.data.message);

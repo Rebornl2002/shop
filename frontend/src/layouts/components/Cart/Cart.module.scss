@@ -40,12 +40,18 @@
     overflow-y: auto;
 }
 
+.content {
+    display: flex;
+    cursor: pointer;
+    border-bottom: 1px solid #f8f8f8;
+    padding: 4px 16px 4px 0px;
+}
+
 .product {
     padding: 2px 10px;
     display: flex;
     align-items: center;
     cursor: pointer;
-    border-bottom: 1px solid #f8f8f8;
     &:hover {
         background-color: rgba(22, 24, 35, 0.03);
     }
@@ -53,6 +59,7 @@
 
 .tick-product {
     margin-right: 8px;
+    cursor: pointer;
 }
 
 .product:last-child {
@@ -80,12 +87,24 @@
 
 .product-title {
     font-size: 1.4rem;
-    margin-bottom: 5px;
+}
+
+.product-variation {
+    font-size: 1.4rem;
 }
 
 .product-price {
     font-size: 1.2rem;
     color: var(--primary);
+}
+
+.delete-cart {
+    font-size: 1.2rem;
+    color: var(--default-bold);
+
+    &:hover {
+        color: var(--primary);
+    }
 }
 
 .cart-empty {
