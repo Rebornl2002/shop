@@ -179,7 +179,7 @@ export const variationTable = (handleOpenEditDialog, handleDeleteModel) => [
                 <IconButton onClick={() => handleOpenEditDialog(params.row)} size="small">
                     <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleDeleteModel(params.row.id)} size="small" color="secondary">
+                <IconButton onClick={() => handleDeleteModel(params.row.variationId)} size="small" color="secondary">
                     <Delete />
                 </IconButton>
             </>

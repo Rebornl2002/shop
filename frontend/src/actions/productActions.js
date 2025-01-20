@@ -323,7 +323,21 @@ export const fetchDeleteVariation = (id) => {
             .then((response) => Toast.success(response.data.message))
             .catch((error) => {
                 const errorMsg = error.response?.data?.message || error.message;
-                console.log(error);
+                Toast.error(errorMsg);
+                throw error;
+            });
+    };
+};
+
+export const fetchUpdateVariation = (data) => {
+    return () => {
+        return axios
+            .patch(`http://localhost:4000/api/data/updateVariation`, data, { withCredentials: true })
+            .then((response) => {
+                Toast.success(response.data.message);
+            })
+            .catch((error) => {
+                const errorMsg = error.response?.data?.message || error.message;
                 Toast.error(errorMsg);
                 throw error;
             });

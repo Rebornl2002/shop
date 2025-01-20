@@ -10,6 +10,7 @@ import { Toast } from '@/components/Toast/Toast';
 import { fetchAddOrder } from '@/actions/orderActions';
 import CreditCardForm from '@/components/CreditCardForm/CreditCardForm';
 import { fetchAddCredit, fetchGetCredit } from '@/actions/creditActions';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -18,6 +19,7 @@ function Buy() {
     const detailUser = useSelector((state) => state.user.detail);
     const buyProduct = useSelector((state) => state.product.productToPurchase);
     const credit = useSelector((state) => state.credit.credits);
+    const navigate = useNavigate();
 
     const [paymentMethod, setPaymentMethod] = useState('COD');
     const [card, setCard] = useState(null);
@@ -110,6 +112,7 @@ function Buy() {
 
                 await dispatch(fetchAddOrder(orderData, filteredProduct));
                 localStorage.removeItem('productToPurchase');
+                navigate('/');
             }
         } catch (error) {
             console.error(error);

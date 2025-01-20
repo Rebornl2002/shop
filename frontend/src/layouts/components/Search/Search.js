@@ -44,6 +44,9 @@ function Search() {
             e.preventDefault();
         }
     };
+    const handleProductClick = () => {
+        setSearchValue('');
+    };
 
     return (
         <div className={cx('wrapper')}>
@@ -61,7 +64,12 @@ function Search() {
                 {debouncedValue.trim() && searchData.length > 0 && (
                     <div className={cx('result-container')}>
                         {searchData.map((product, index) => (
-                            <Link to={`${routes.product}/${product.id}`} className={cx('result-product')} key={index}>
+                            <Link
+                                to={`${routes.product}/${product.id}`}
+                                className={cx('result-product')}
+                                key={index}
+                                onClick={handleProductClick}
+                            >
                                 <div
                                     className={cx('result-img')}
                                     style={{

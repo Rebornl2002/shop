@@ -170,7 +170,6 @@ async function deleteCart(req, res) {
     }
 
     const id = req.body; // Dữ liệu có thể là một mảng hoặc đối tượng
-    console.log(id);
 
     // Kiểm tra dữ liệu đầu vào
     if (!id || typeof id !== 'object') {

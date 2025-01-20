@@ -5,7 +5,12 @@ import EditDialog from './EditDialog';
 import { variationTable } from './columns';
 import { StyledDataGrid } from './ProductTableStyles';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAddVariation, fetchDeleteVariation, fetchGetVariation } from '@/actions/productActions';
+import {
+    fetchAddVariation,
+    fetchDeleteVariation,
+    fetchGetVariation,
+    fetchUpdateVariation,
+} from '@/actions/productActions';
 
 const ModelDialog = ({ open, onClose, product }) => {
     const [models, setModels] = useState([]);
@@ -54,6 +59,7 @@ const ModelDialog = ({ open, onClose, product }) => {
 
     const handleDeleteModel = async (modelId) => {
         try {
+            console.log(modelId);
             await dispatch(fetchDeleteVariation(modelId));
             const updatedModels = models.filter((model) => model.id !== modelId);
             setModels(updatedModels);
@@ -63,14 +69,26 @@ const ModelDialog = ({ open, onClose, product }) => {
     };
 
     const handleSaveModel = async (newModel) => {
-        if (isEditing) {
-            setModels(models.map((model) => (model.id === currentModel.id ? { ...model, ...newModel } : model)));
-        } else {
-            const data = { productId: product.id, ...newModel };
-            await dispatch(fetchAddVariation(data));
-            await dispatch(fetchGetVariation(product.id));
+        try {
+            if (isEditing) {
+                const newData = { variationId: currentModel.variationId, ...newModel };
+                const updatedModel = { ...currentModel, ...newModel };
+
+                await dispatch(fetchUpdateVariation(newData));
+                // Cập nhật mẫu mã đã sửa vào state models
+                const updatedModels = models.map((model) =>
+                    model.variationId === currentModel.variationId ? updatedModel : model,
+                );
+                setModels(updatedModels); // Cập nhật lại models với dữ liệu mới
+            } else {
+                const data = { productId: product.id, ...newModel };
+                await dispatch(fetchAddVariation(data));
+                await dispatch(fetchGetVariation(product.id));
+            }
+            setOpenEditDialog(false);
+        } catch (error) {
+            console.error(error);
         }
-        setOpenEditDialog(false);
     };
 
     const modelFields = [
@@ -95,6 +113,7 @@ const ModelDialog = ({ open, onClose, product }) => {
                         columns={variationTable(handleOpenEditDialog, handleDeleteModel)}
                         pageSize={5}
                         rowsPerPageOptions={[5]}
+                        getRowId={(row) => row.variationId}
                     />
                 </div>
             </DialogContent>

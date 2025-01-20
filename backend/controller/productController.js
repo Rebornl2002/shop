@@ -98,9 +98,23 @@ async function getSearchProducts(req, res) {
             // Nếu có tên sản phẩm được cung cấp, thực hiện truy vấn với điều kiện tìm kiếm
             const searchPattern = `%${productName}%`;
             result = await sql.query`
-                SELECT *
-                FROM products
-                WHERE isDeleted = 0 AND name LIKE ${searchPattern}
+            WITH FirstVariation AS (
+                    SELECT 
+                        productId, 
+                        MIN(variationId) AS firstVariationId
+                    FROM productVariations
+                    WHERE isDeleted = 0
+                    GROUP BY productId
+                )
+                SELECT 
+                    p.*,   -- Chỉnh sửa p* thành p.*
+                    pv.imgSrc, 
+                    pv.price
+                FROM products p
+                LEFT JOIN FirstVariation fv ON p.id = fv.productId
+                LEFT JOIN productVariations pv ON fv.firstVariationId = pv.variationId
+                WHERE p.isDeleted = 0 AND (pv.isDeleted = 0 OR pv.variationId IS NULL) AND p.name LIKE ${searchPattern}
+                ORDER BY p.id
             `;
         } else {
             // Nếu không có tên sản phẩm được cung cấp, lấy tất cả sản phẩm
@@ -251,33 +265,40 @@ async function updateProduct(req, res) {
             const updateProductFields = [];
             const updateDetailProductFields = [];
             let imgSrcBuffer = null;
+            let price = null;
 
             if (fieldsToUpdate.name) updateProductFields.push('name = @name');
-            if (fieldsToUpdate.price) updateProductFields.push('price = @price');
             if (fieldsToUpdate.percentDiscount) updateProductFields.push('percentDiscount = @percentDiscount');
-            if (fieldsToUpdate.imgSrc) {
-                const imgSrc = fieldsToUpdate.imgSrc;
-                imgSrcBuffer = imgSrc.startsWith('data:image')
-                    ? Buffer.from(imgSrc.split(',')[1], 'base64')
-                    : Buffer.from(imgSrc, 'base64');
-                updateProductFields.push('imgSrc = @imgSrc');
-            }
+
             if (fieldsToUpdate.origin) updateDetailProductFields.push('origin = @origin');
             if (fieldsToUpdate.expiry) updateDetailProductFields.push('expiry = @expiry');
             if (fieldsToUpdate.quantityInStock) updateDetailProductFields.push('quantityInStock = @quantityInStock');
             if (fieldsToUpdate.trademark) updateDetailProductFields.push('trademark = @trademark');
 
+            // Xử lý price và lưu lại nếu có
+            if (fieldsToUpdate.price) {
+                price = fieldsToUpdate.price;
+            }
+
+            // Kiểm tra và xử lý ảnh imgSrc nếu có
+            if (fieldsToUpdate.imgSrc) {
+                const imgSrc = fieldsToUpdate.imgSrc;
+                imgSrcBuffer = imgSrc.startsWith('data:image')
+                    ? Buffer.from(imgSrc.split(',')[1], 'base64')
+                    : Buffer.from(imgSrc, 'base64');
+            }
+
+            // Thực hiện cập nhật bảng products nếu có trường cần cập nhật
             if (updateProductFields.length > 0) {
                 const updateProductQuery = `UPDATE products SET ${updateProductFields.join(', ')} WHERE id = @id`;
                 const request = transaction.request().input('id', sql.Int, id);
                 if (fieldsToUpdate.name) request.input('name', sql.NVarChar, fieldsToUpdate.name);
-                if (fieldsToUpdate.price) request.input('price', sql.NVarChar, fieldsToUpdate.price);
                 if (fieldsToUpdate.percentDiscount)
                     request.input('percentDiscount', sql.NVarChar, fieldsToUpdate.percentDiscount);
-                if (imgSrcBuffer) request.input('imgSrc', sql.VarBinary, imgSrcBuffer);
                 await request.query(updateProductQuery);
             }
 
+            // Thực hiện cập nhật bảng detailProducts nếu có trường cần cập nhật
             if (updateDetailProductFields.length > 0) {
                 const updateDetailProductQuery = `UPDATE detailProducts SET ${updateDetailProductFields.join(', ')} WHERE id = @id`;
                 const request = transaction.request().input('id', sql.Int, id);
@@ -287,6 +308,48 @@ async function updateProduct(req, res) {
                     request.input('quantityInStock', sql.Int, fieldsToUpdate.quantityInStock);
                 if (fieldsToUpdate.trademark) request.input('trademark', sql.NVarChar, fieldsToUpdate.trademark);
                 await request.query(updateDetailProductQuery);
+            }
+
+            // Cập nhật price vào biến thể đầu tiên của sản phẩm (nếu có)
+            if (price) {
+                const findFirstVariationQuery = `
+                    SELECT TOP 1 variationId 
+                    FROM productVariations 
+                    WHERE productId = @productId AND isDeleted = 0 
+                    ORDER BY variationId ASC`;
+                const findFirstVariationRequest = transaction.request().input('productId', sql.Int, id);
+                const result = await findFirstVariationRequest.query(findFirstVariationQuery);
+
+                if (result.recordset.length > 0) {
+                    const firstVariationId = result.recordset[0].variationId;
+                    const updatePriceQuery = `UPDATE productVariations SET price = @price WHERE variationId = @variationId`;
+                    const updatePriceRequest = transaction
+                        .request()
+                        .input('price', sql.NVarChar, price) // Chắc chắn rằng giá được truyền vào dưới dạng đúng kiểu dữ liệu
+                        .input('variationId', sql.Int, firstVariationId);
+                    await updatePriceRequest.query(updatePriceQuery);
+                }
+            }
+
+            // Cập nhật imgSrc vào biến thể đầu tiên của sản phẩm (nếu có)
+            if (imgSrcBuffer) {
+                const findFirstVariationQuery = `
+                    SELECT TOP 1 variationId 
+                    FROM productVariations 
+                    WHERE productId = @productId AND isDeleted = 0 
+                    ORDER BY variationId ASC`;
+                const findFirstVariationRequest = transaction.request().input('productId', sql.Int, id);
+                const result = await findFirstVariationRequest.query(findFirstVariationQuery);
+
+                if (result.recordset.length > 0) {
+                    const firstVariationId = result.recordset[0].variationId;
+                    const updateImgSrcQuery = `UPDATE productVariations SET imgSrc = @imgSrc WHERE variationId = @variationId`;
+                    const updateImgSrcRequest = transaction
+                        .request()
+                        .input('imgSrc', sql.VarBinary, imgSrcBuffer)
+                        .input('variationId', sql.Int, firstVariationId);
+                    await updateImgSrcRequest.query(updateImgSrcQuery);
+                }
             }
 
             await transaction.commit();
@@ -371,17 +434,31 @@ async function getAllDetailProducts(req, res) {
             // Kết nối đến cơ sở dữ liệu
             await connectToDatabase();
 
-            // Truy vấn dữ liệu từ bảng products và detailProducts với alias và ký tự đại diệnP
             const result = await sql.query`
+                WITH FirstVariation AS (
+                    SELECT 
+                        productId, 
+                        MIN(variationId) AS firstVariationId
+                    FROM productVariations
+                    WHERE isDeleted = 0
+                    GROUP BY productId
+                )
                 SELECT 
-                    p.*, 
+                    p.id, 
+                    p.name, 
+                    p.percentDiscount, 
                     d.trademark, 
                     d.expiry, 
                     d.quantityInStock, 
-                    d.origin
+                    d.origin, 
+                    pv.imgSrc, 
+                    pv.price
                 FROM products p
-                JOIN detailProducts d ON p.id = d.id
-                WHERE p.isDeleted = 0; 
+                LEFT JOIN detailProducts d ON p.id = d.id
+                LEFT JOIN FirstVariation fv ON p.id = fv.productId
+                LEFT JOIN productVariations pv ON fv.firstVariationId = pv.variationId
+                WHERE p.isDeleted = 0 AND (pv.isDeleted = 0 OR pv.variationId IS NULL)
+                ORDER BY p.id
             `;
 
             // Xử lý dữ liệu để chuyển đổi trường `imgSrc` thành base64
@@ -537,6 +614,75 @@ async function deleteVariationProduct(req, res) {
         return res.status(500).json({ message: 'Lỗi khi xóa sản phẩm!' });
     }
 }
+
+async function updateVariation(req, res) {
+    const token = req.cookies.authToken;
+    if (!token) {
+        return res.status(401).json({ message: 'Token không hợp lệ!' });
+    }
+
+    try {
+        // Xác thực token JWT
+        const decoded = jwt.verify(token, secretKey);
+        const role = decoded.role;
+
+        if (role !== 'admin' && role !== 'superAdmin') {
+            return res.status(403).json({ message: 'Không có quyền truy cập!' });
+        }
+
+        await connectToDatabase();
+        const transaction = new sql.Transaction();
+        await transaction.begin();
+
+        try {
+            const { variationId, description, price, stock, imgSrc } = req.body;
+
+            // Mảng lưu các trường cần cập nhật
+            const updateVariationFields = [];
+            let imgSrcBuffer = null;
+
+            // Cập nhật description, price và stock nếu có
+            if (description) updateVariationFields.push('description = @description');
+            if (price) updateVariationFields.push('price = @price');
+            if (stock) updateVariationFields.push('stock = @stock');
+
+            // Xử lý ảnh imgSrc nếu có
+            if (imgSrc) {
+                imgSrcBuffer = imgSrc.startsWith('data:image')
+                    ? Buffer.from(imgSrc.split(',')[1], 'base64')
+                    : Buffer.from(imgSrc, 'base64');
+                updateVariationFields.push('imgSrc = @imgSrc');
+            }
+
+            // Nếu có trường cần cập nhật, thực hiện truy vấn
+            if (updateVariationFields.length > 0) {
+                const updateVariationQuery = `UPDATE productVariations SET ${updateVariationFields.join(', ')} WHERE variationId = @variationId AND isDeleted = 0`;
+
+                const request = transaction.request().input('variationId', sql.Int, variationId);
+                if (description) request.input('description', sql.NVarChar, description);
+                if (price) request.input('price', sql.Int, price);
+                if (stock) request.input('stock', sql.Int, stock);
+                if (imgSrcBuffer) request.input('imgSrc', sql.VarBinary, imgSrcBuffer);
+
+                await request.query(updateVariationQuery);
+            }
+
+            await transaction.commit();
+            return res.status(200).json({ message: 'Biến thể sản phẩm đã được cập nhật thành công!' });
+        } catch (error) {
+            await transaction.rollback();
+            console.error(error);
+            return res.status(500).json({ message: 'Lỗi khi cập nhật biến thể sản phẩm!' });
+        }
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({ message: 'Phiên đăng nhập đã hết hạn!' });
+        }
+        console.error(error);
+        return res.status(500).json({ message: 'Lỗi khi xác thực người dùng!' });
+    }
+}
+
 module.exports = {
     getAllProducts,
     getSearchProducts,
@@ -549,4 +695,5 @@ module.exports = {
     getVariationProduct,
     addVariationProduct,
     deleteVariationProduct,
+    updateVariation,
 };

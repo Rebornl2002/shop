@@ -34,6 +34,7 @@ router.put('/updateDetailUser', userController.updateDetailUser);
 router.patch('/updateCartQuantity', cartController.updateCartQuantity);
 router.patch('/updateProduct', productController.updateProduct);
 router.patch('/toggerStatus', userController.toggleUserStatus);
+router.patch('/updateVariation', productController.updateVariation);
 
 router.patch('/product', productController.deleteProduct);
 

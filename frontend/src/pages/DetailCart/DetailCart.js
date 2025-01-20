@@ -83,7 +83,6 @@ function DetailCart() {
     };
 
     const handleDeleteCart = (id) => {
-        console.log(id);
         dispatch(deleteCart(id))
             .then(() => {
                 return dispatch(getCartData());
@@ -92,6 +91,7 @@ function DetailCart() {
                 console.error(err);
             });
         onClose();
+        onCloseAll();
     };
 
     const handleBuy = () => {

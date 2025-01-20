@@ -44,6 +44,7 @@ const ViewDialog = ({ open, onClose, product, fields, title }) => {
     };
 
     const purchasedProductsList = parsePurchasedProducts(currentData?.purchasedProducts);
+    console.log(fields);
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth={true}>

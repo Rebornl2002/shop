@@ -4,6 +4,7 @@ import {
     fetchAddProduct,
     fetchAllDetailProducts,
     fetchDeleteProduct,
+    fetchGetVariation,
     fetchUpdateProduct,
 } from '@/actions/productActions';
 import { StyledDataGrid } from './ProductTableStyles';
@@ -17,7 +18,7 @@ const ProductTable = () => {
     const [rows, setRows] = useState([]);
     const [open, setOpen] = useState(false);
     const [currentProduct, setCurrentProduct] = useState(null);
-    const [selectedProductForModels, setSelectedProductForModels] = useState(null); // Sản phẩm hiện tại cho quản lý mẫu mã
+    const [selectedProductForModels, setSelectedProductForModels] = useState(null);
     const dispatch = useDispatch();
     const data = useSelector((state) => state.product.allDetails);
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -101,9 +102,9 @@ const ProductTable = () => {
         setSelectedOrder(null);
     };
 
-    const handleOpenModelDialog = (product) => {
-        setSelectedProductForModels(product);
+    const handleOpenModelDialog = async (product) => {
         setOpenModelDialog(true);
+        setSelectedProductForModels(product);
     };
 
     const handleCloseModelDialog = () => {
@@ -113,7 +114,7 @@ const ProductTable = () => {
 
     const productFields = [
         { label: 'Tên sản phẩm', name: 'name', required: true },
-        { label: 'Mô tả', name: 'description', required: true },
+        ...(currentProduct?.id ? [] : [{ label: 'Mô tả', name: 'description', required: true }]),
         { label: 'Giá', name: 'price', type: 'number', required: true, validate: (value) => value > 0 },
         {
             label: 'Phần trăm giảm giá',
